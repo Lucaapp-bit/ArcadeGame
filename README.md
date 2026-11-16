@@ -1,34 +1,35 @@
-# ECHO DRIFT
+# LUCA e la Moka Rubata
 
-A one-ship arcade game played in the dark. You can barely see — **ping** to light up the world, but every ping wakes the hunters and sends them charging at the spot where you were.
+Un platformer in 6 mondi. Qualcuno ha rubato la moka di Luca: attraversa colline, caverne di cristallo, rovine nel cielo, ghiacci e lava fino alla Fortezza dell'Ombra per riprendertela.
 
-Plain HTML5 canvas + WebAudio. No build step, no dependencies: Vercel serves `index.html` as-is.
+HTML5 canvas + WebAudio, nessuna dipendenza e nessun build: Vercel serve i file così come sono.
 
-## How to play
+## Comandi
 
-| | Desktop | Mobile |
+| | Tastiera | Touch |
 |---|---|---|
-| Steer | Mouse, or WASD / arrow keys | Drag a finger |
-| Ping | Click / Space | PING button |
-| Pause | P / Esc | switch away from the tab |
-| Sound | M | — |
+| Muovi | ← → / A D | ◀ ▶ |
+| Salta (più tieni premuto, più sali) | Spazio / ↑ / W / Z | SALTA |
+| Corri | Shift / X | CORRI |
+| Scendi da una piattaforma sottile | ↓ + Salto | — |
+| Pausa / Audio / Riavvia livello | P / M / R | — |
 
-- Collect the golden **shards** to clear each wave. Shards glow faintly, mines and hunters are invisible until lit.
-- **Pinging costs energy** (it refills slowly, and each shard gives a little back).
-- **Chain** shards within ~4 seconds to build a multiplier up to x8.
-- **BLIND bonus:** collect a shard without having pinged for 4 seconds and it's worth double.
-- From wave 2 **hunters** roam: a ping within earshot sends them charging at its origin. Ping, then move.
-- Clear a wave for a bonus; you gain a life every other wave (max 5).
+## Cosa c'è dentro
 
-High score is saved in `localStorage`.
+- **6 mondi** con grafica, nemici, musica e pericoli diversi: Colline Verdi, Caverna di Cristallo, Rovine nel Cielo, Valle Ghiacciata (si scivola), Fucina di Lava, Fortezza dell'Ombra.
+- **Salto curato**: altezza variabile, coyote time, salto bufferizzato, schiacciata ed elasticità.
+- **Nemici**: slime e coleotteri da schiacciare (i coleotteri hanno le spine sopra!), pipistrelli, getti di fuoco, spuntoni.
+- **Potenziamenti**: *Turbo Caffè* (10 s di velocità, doppio salto e invincibilità offensiva), cuori, 3 punti ferita, vite extra ogni 100 chicchi.
+- **Elementi di livello**: casse con sorprese, molle, piattaforme mobili e che crollano, checkpoint (moka da bar).
+- **Boss finale**: l'Ombra. Salta sulla sua testa quando è stordita, e ogni colpo lo fa infuriare.
+- **Progressi salvati** nel browser: livelli sbloccati, record di chicchi, tempo e punteggio.
 
-## Run locally
+## Sviluppo
 
 ```bash
-npx serve .      # or just open index.html
+npx serve .      # oppure apri index.html
 ```
 
-## Files
-
-- `index.html` — page shell
-- `game.js` — the whole game
+- `index.html` — pagina
+- `levels.js` — i 6 livelli (piccola DSL a tile da 32px)
+- `game.js` — fisica, nemici, boss, rendering, musica procedurale
