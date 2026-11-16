@@ -18,7 +18,7 @@ HTML5 canvas + WebAudio, nessuna dipendenza e nessun build: Vercel serve i file 
 
 - **6 mondi** con grafica, nemici, musica e pericoli diversi: Colline Verdi, Caverna di Cristallo, Rovine nel Cielo, Valle Ghiacciata (si scivola), Fucina di Lava, Fortezza dell'Ombra.
 - **Salto curato**: altezza variabile, coyote time, salto bufferizzato, schiacciata ed elasticità.
-- **Nemici**: slime e coleotteri da schiacciare (i coleotteri hanno le spine sopra!), pipistrelli, getti di fuoco, spuntoni.
+- **Nemici**: slime e pipistrelli si schiacciano saltandoci sopra; i coleotteri **no** (hanno le spine sopra: schivali o usa il Turbo Caffè). Poi getti di fuoco e spuntoni.
 - **Potenziamenti**: *Turbo Caffè* (10 s di velocità, doppio salto e invincibilità offensiva), cuori, 3 punti ferita, vite extra ogni 100 chicchi.
 - **Elementi di livello**: casse con sorprese, molle, piattaforme mobili e che crollano, checkpoint (moka da bar).
 - **Boss finale**: l'Ombra. Salta sulla sua testa quando è stordita, e ogni colpo lo fa infuriare.
