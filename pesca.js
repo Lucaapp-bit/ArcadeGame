@@ -49,7 +49,9 @@ const G = {
   parts: [], floats: [], ped: null, nextPed: 25, nextKnee: 18, knee: 0, bubble: null, mut: 6, shake: 0, flash: 0,
   stats: null, overT: 0, finT: 0, sel: 0, prevMode: 'title', over: null, cut: 0, lostMsg: '',
 };
-let holding = false, touchMode = false;
+let holding = false, touchMode = ('ontouchstart' in window) || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+const uk = () => cl(0.8 / scale, 1, 1.55);
+const vib = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
 
 // ───────────────────────── audio ─────────────────────────
 let ac = null, muted = false, amb = null;
@@ -167,11 +169,11 @@ const FORT = {
   pos: [
     'Il PD ha superato Fratelli d\'Italia!', 'È agosto: vai al mare a Sanremo!', 'Donati ha perso il derby. Bro.',
     'Oggi il ginocchio non fa male!', 'Tommy V è bloccato in tangenziale.', '30 scudetti sul campo!',
-    'Nesh ti lascia il suo gatto Gordo: lo devi nutrire per il weekend.', 'Martino ha chiesto scusa. (Sta sognando.)', 'Il medico dice: sei sanissimo!', 'Stiamo FORMANDO l\'Italia!',
+    'Nesh ti lascia il suo gatto Gordo: lo devi nutrire per il weekend.', 'Martino ha chiesto scusa. (Sta sognando.)', 'Il medico dice: sei sanissimo!', 'Biden rivince le elezioni USA: la democrazia è salva!', 'Stiamo FORMANDO l\'Italia!',
   ],
   neg: [
     'Weekend lungo a Milano: paghi lo spritz 15 euro.', 'Paghi più tasse per mantenere Lucone e Martino.',
-    'Niente calcetto il lunedì: il ginocchio ti fa male.', 'Donati ti manda il meme dell\'Inter.',
+    'Niente calcetto il lunedì: il ginocchio ti fa male.', 'La Juve ha perso anche questo weekend: sfottò a raffica di Donati.', 'Matrimonio Gordons in Sudafrica: ti partono 1500 euro.',
     'Lucone ti sorpassa in coda. Con il cartellino.', 'Tommy V ti invita a cena a Milano.',
     'Serata con la Gordons: spesi 150 euro per una cena pacco.', 'Il tuo piede-ferro-da-stiro sbaglia il rigore.',
     'Martino timbra e va a casa: il caffè lo paghi tu.',
@@ -239,7 +241,7 @@ function updateReel(dt) {
   else if (r.prog <= 0) { G.lostMsg = 'Il pesce è scappato!'; loseLine(4, false); }
 }
 function loseLine(a, byPedalo) {
-  G.ansia += a; G.combo = 0; G.stats.lost++; sfx.lose();
+  G.ansia += a; G.combo = 0; G.stats.lost++; sfx.lose(); vib(120);
   setEvent({ pos: false, t: pickL(FORT.neg), a: 5, p: -40 });
   floater(G.bx, SEA - 20, byPedalo ? (G.ped ? PEOPLE[G.ped.who].n : 'Martino') + ' ti ha tranciato la lenza!' : G.lostMsg, '#ff8a7a', 18);
   if (byPedalo && G.ped) G.ped.say = PEOPLE[G.ped.who].sorry;
@@ -275,7 +277,7 @@ function updateEvents(dt) {
   // ginocchio
   G.nextKnee -= dt;
   if (G.nextKnee <= 0 && ['charge', 'wait', 'bite', 'reel'].includes(G.ph)) {
-    G.knee = 1.5; G.nextKnee = rnd(24, 42); G.ansia += 3; sfx.ahi(); G.shake = 6;
+    G.knee = 1.5; G.nextKnee = rnd(24, 42); G.ansia += 3; sfx.ahi(); vib([70, 40, 70]); G.shake = 6;
     G.bubble = { t: 'AHI, IL GINOCCHIO!', life: 1.6, hot: true };
   }
   if (G.knee > 0) G.knee -= dt;
@@ -313,7 +315,7 @@ function updatePlay(dt) {
       if (u >= 1) { G.by = SEA; splash(G.bx); G.wt = rnd(1.4, 3.4) + G.zone * 0.5; G.item = pickItem(G.zone); setPh('wait'); }
       break;
     }
-    case 'wait': G.by = SEA + Math.sin(G.time * 3) * 1.5; if (G.pt >= G.wt) { setPh('bite'); sfx.bite(); puff(G.bx, SEA, 8, '#dff6ff', 120, 0.5, 2); } break;
+    case 'wait': G.by = SEA + Math.sin(G.time * 3) * 1.5; if (G.pt >= G.wt) { setPh('bite'); sfx.bite(); vib(70); puff(G.bx, SEA, 8, '#dff6ff', 120, 0.5, 2); } break;
     case 'bite':
       G.by = SEA + 7 + Math.sin(G.time * 50) * 2;
       if (G.pt > BITE_WIN) { G.lostMsg = 'Scappato! Eri distratto.'; loseLine(4, false); }
@@ -620,7 +622,7 @@ function drawPedalo(p) {
   ctx.restore();
   { const nm = PEOPLE[w].n.toUpperCase(), tw = nm.length * 7.6 + 16; ctx.fillStyle = '#c4382f'; const ny = w === 'lucone' ? -92 : w === 'martino' ? -78 : -82; rr(ctx, px - tw / 2, ny, tw, 17, 8); ctx.fill(); txt(nm, px, ny + 9, 11, '#fff', 'center'); }
   ctx.restore();
-  bubble(x + 8, y - 106, p.say, { size: 13, w: 160 });
+  bubble(x + 8, y - 106, p.say, { size: 13 * uk(), w: 160 * uk() });
 }
 function drawLineAndBobber(rp) {
   const ph = G.ph;
@@ -669,6 +671,7 @@ function drawParts() {
 }
 
 // ───────────────────────── HUD ─────────────────────────
+const bw0 = 520, PAUSE_BTN = { x: W - 56, y: 78, w: 44, h: 40 };
 function drawHUD() {
   // punteggio
   ctx.fillStyle = 'rgba(8,14,40,0.55)'; rr(ctx, 12, 10, 206, G.combo > 1 ? 84 : 62, 12); ctx.fill();
@@ -699,15 +702,20 @@ function drawHUD() {
   else if (G.ph === 'charge') hint = 'RILASCIA per lanciare: più lontano = pesci rari (e guai grossi)';
   else if (G.ph === 'wait') hint = 'Aspetta che abbocchi... (tocca per ritirare la lenza)';
   else if (G.ph === 'reel') hint = 'TIENI PREMUTO per salire, rilascia per scendere: segui il pesce!';
-  if (hint) txt(hint, W / 2, G.ph === 'reel' ? 402 : H - 22, 15, '#fff', 'center', 0.92, 'rgba(0,0,0,0.6)');
+  if (hint) txt(hint, W / 2, G.ph === 'reel' ? 402 : H - 22 - (uk() - 1) * 8, 15 * uk(), '#fff', 'center', 0.92, 'rgba(0,0,0,0.6)');
   if (G.ph === 'bite') txt('ABBOCCATO!  ' + (T ? 'TOCCA' : 'PREMI') + ' ORA!', W / 2, 112, 46 + Math.sin(G.t * 30) * 3, '#ffd24d', 'center', 1, '#7a1f1f');
   if (G.ph === 'charge' || G.ph === 'idle') drawZones();
   if (G.ph === 'reel' && G.reel) drawReel();
   if (G.event && G.ph !== 'reveal') {
-    const m = G.event, k = ease(cl((m.max - m.life) / 0.2, 0, 1)) * cl(m.life / 0.35, 0, 1) ** 0.5, col = m.pos ? '#2f8a4a' : '#c4382f', bw = 520, bh = 76, x = W - bw - 24, y = 128 - (1 - k) * 20;
+    const m = G.event, K = uk(), fs = 17 * K, lines = wrap(m.t, bw0 - 40, fs).slice(0, 3), bh = 34 + lines.length * (fs + 4) + 6, bw = bw0;
+    const k = ease(cl((m.max - m.life) / 0.2, 0, 1)) * cl(m.life / 0.35, 0, 1) ** 0.5, col = m.pos ? '#2f8a4a' : '#c4382f', x = W - bw - 24, y = 112 - (1 - k) * 20;
     ctx.save(); ctx.globalAlpha = k; ctx.fillStyle = m.pos ? '#dff3df' : '#f9dcd6'; rr(ctx, x, y, bw, bh, 12); ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.stroke();
-    txt(m.pos ? 'BONUS' : 'MALUS', x + 18, y + 18, 13, col, 'left'); txt('ANSIA ' + (m.a > 0 ? '+' : '') + m.a + '    ' + (m.p > 0 ? '+' : '') + m.p + ' punti', x + bw - 18, y + 18, 13, col, 'right');
-    wrap(m.t, bw - 40, 17).slice(0, 2).forEach((l, i) => txt(l, x + 18, y + 42 + i * 20, 17, '#2a1d10', 'left')); ctx.restore();
+    txt(m.pos ? 'BONUS' : 'MALUS', x + 18, y + 18, 13 * K, col, 'left'); txt('ANSIA ' + (m.a > 0 ? '+' : '') + m.a + '    ' + (m.p > 0 ? '+' : '') + m.p + ' punti', x + bw - 18, y + 18, 13 * K, col, 'right');
+    lines.forEach((l, i) => txt(l, x + 18, y + 40 + K * 4 + i * (fs + 4), fs, '#2a1d10', 'left')); ctx.restore();
+  }
+  if (touchMode && G.mode === 'play') {
+    ctx.fillStyle = 'rgba(8,14,40,0.55)'; rr(ctx, PAUSE_BTN.x, PAUSE_BTN.y, PAUSE_BTN.w, PAUSE_BTN.h, 10); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.fillRect(PAUSE_BTN.x + 13, PAUSE_BTN.y + 10, 6, 20); ctx.fillRect(PAUSE_BTN.x + 25, PAUSE_BTN.y + 10, 6, 20);
   }
 }
 function drawZones() {
@@ -742,12 +750,12 @@ function drawReel() {
 const BTN = {
   title: [{ id: 'play', x: W / 2 - 150, y: 392, w: 300, h: 56 }, { id: 'dex', x: W / 2 - 150, y: 458, w: 300, h: 42 }],
   over: [{ id: 'retry', x: W / 2 - 160, y: 456, w: 150, h: 46 }, { id: 'dex', x: W / 2 + 10, y: 456, w: 150, h: 46 }],
-  dex: [{ id: 'back', x: W / 2 - 80, y: 492, w: 160, h: 38 }],
+  dex: [{ id: 'back', x: W / 2 - 90, y: 490, w: 180, h: 44 }],
 };
 function button(b, label, main) {
   ctx.fillStyle = main ? '#ffd24d' : 'rgba(255,255,255,0.18)'; rr(ctx, b.x, b.y, b.w, b.h, 14); ctx.fill();
   if (!main) { ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2; ctx.stroke(); }
-  txt(label, b.x + b.w / 2, b.y + b.h / 2 + 1, main ? 24 : 16, main ? '#5a2a08' : '#fff', 'center');
+  txt(label, b.x + b.w / 2, b.y + b.h / 2 + 1, (main ? 24 : 16) * Math.min(1.25, uk()), main ? '#5a2a08' : '#fff', 'center');
 }
 function drawTitle() {
   drawSky(); drawSea(); drawPier();
@@ -847,6 +855,9 @@ const isPortrait = () => window.innerHeight > window.innerWidth * 1.05;
 function render() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.setTransform(dpr * scale, 0, 0, dpr * scale, offX * dpr, offY * dpr);
+  { const x0 = -offX / scale - 4, x1 = (canvas.width / dpr - offX) / scale + 4, y0 = -offY / scale - 4, y1 = (canvas.height / dpr - offY) / scale + 4;
+    const gs = ctx.createLinearGradient(0, y0, 0, SEA); gs.addColorStop(0, '#1b2455'); gs.addColorStop(0.6, '#6b3b80'); gs.addColorStop(1, '#ffb27a'); ctx.fillStyle = gs; ctx.fillRect(x0, y0, x1 - x0, SEA - y0 + 1);
+    const gw = ctx.createLinearGradient(0, SEA, 0, H); gw.addColorStop(0, '#46c0cf'); gw.addColorStop(0.3, '#1f84ab'); gw.addColorStop(1, '#09264f'); ctx.fillStyle = gw; ctx.fillRect(x0, SEA, x1 - x0, y1 - SEA); }
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
   const m = G.mode;
   if (m === 'dex') drawDex();
@@ -856,7 +867,7 @@ function render() {
     drawSky(); drawSea();
     if (G.ped) drawPedalo(G.ped);
     drawPier(); const rp = drawLeo(LX, LY); drawLineAndBobber(rp); drawParts();
-    if (G.bubble) { const a = cl(G.bubble.life / 0.4, 0, 1); bubble(LX + 6, LY - 176, G.bubble.t, { hot: G.bubble.hot, alpha: a, w: 170, size: 14 }); }
+    if (G.bubble) { const a = cl(G.bubble.life / 0.4, 0, 1); bubble(LX + 6, LY - 150, G.bubble.t, { hot: G.bubble.hot, alpha: a, w: 170 * uk(), size: 14 * uk() }); }
     if (G.flash > 0) { ctx.fillStyle = 'rgba(255,60,60,' + (G.flash * 0.9).toFixed(2) + ')'; ctx.fillRect(0, 0, W, H); }
     if (m !== 'over' || G.overT < 0.3) drawHUD();
     if (G.ph === 'reveal' && m === 'play') drawCard();
@@ -899,15 +910,17 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => { if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp' || e.code === 'KeyW') up(); });
 const toWorld = e => ({ x: (e.clientX - offX) / scale, y: (e.clientY - offY) / scale });
 const inR = (p, b) => p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h;
+const inB = (p, b) => inR(p, { x: b.x - 12, y: b.y - 10, w: b.w + 24, h: b.h + 20 });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
 canvas.addEventListener('pointerdown', e => {
   e.preventDefault(); audio(); startAmb();
   try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
   if (e.pointerType === 'touch') touchMode = true;
   const p = toWorld(e), m = G.mode;
-  if (m === 'title') { for (const b of BTN.title) if (inR(p, b)) { if (b.id === 'play') startRun(); else openDex('title'); return; } return; }
-  if (m === 'over') { if (G.overT > 0.9) for (const b of BTN.over) if (inR(p, b)) { if (b.id === 'retry') startRun(); else openDex('over'); return; } return; }
-  if (m === 'dex') { if (inR(p, BTN.dex[0])) { closeDex(); return; } ITEMS.forEach((it, i) => { if (inR(p, dexRect(i))) { G.sel = i; sfx.select(); } }); return; }
+  if (m === 'title') { for (const b of BTN.title) if (inB(p, b)) { if (b.id === 'play') startRun(); else openDex('title'); return; } return; }
+  if (m === 'over') { if (G.overT > 0.9) for (const b of BTN.over) if (inB(p, b)) { if (b.id === 'retry') startRun(); else openDex('over'); return; } return; }
+  if (m === 'dex') { if (inB(p, BTN.dex[0])) { closeDex(); return; } ITEMS.forEach((it, i) => { if (inR(p, dexRect(i))) { G.sel = i; sfx.select(); } }); return; }
+  if (m === 'play' && touchMode && inB(p, PAUSE_BTN)) { G.mode = 'paused'; holding = false; return; }
   down();
 });
 canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
