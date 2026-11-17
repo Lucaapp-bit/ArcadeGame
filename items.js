@@ -13,8 +13,8 @@ const ITEMS = [
     t: 'Una sardina. Per te è già un tonno.' },
   { id: 'acciuga', n: 'Acciuga', k: 'fish', z: [4, 2, 0], pts: 20, a: -6, d: 0.3, c1: '#7aa7b8', c2: '#dcebf0',
     t: "Un'acciuga. Ti guarda male: secondo lei hai la febbre." },
-  { id: 'orata', n: 'Orata', k: 'fish', z: [1, 4, 2], pts: 45, a: -10, d: 0.5, c1: '#c9ced6', c2: '#f4f1e8',
-    t: "Un'orata! Il ginocchio smette di far male. Per ben quattro secondi." },
+  { id: 'buonotaglio', n: 'Buono taglio', k: 'gag', z: [0, 2, 2], pts: 70, a: 8, d: 0.5,
+    t: 'Un buono per tagliarsi i capelli da Christian, insieme a tutti gli zanza di Stendhal. Si prenota in gruppo.' },
   { id: 'spigola', n: 'Spigola', k: 'fish', z: [0, 4, 3], pts: 70, a: -12, d: 0.6, c1: '#9aa9b5', c2: '#e6ebef',
     t: 'Una spigola da manuale. La foto per Instagram è già pronta.' },
   { id: 'polpo', n: 'Polpo', k: 'fish', z: [0, 2, 4], pts: 110, a: -14, d: 0.7, c1: '#c4573c', c2: '#e98b6b',
@@ -92,9 +92,12 @@ function drawIcon(c, id, x, y, s) {
   switch (id) {
     case 'sardina': fishShape(c, it.c1, it.c2, 0.85, true); break;
     case 'acciuga': c.scale(1, 0.8); fishShape(c, it.c1, it.c2, 0.95, false); break;
-    case 'orata':
-      fishShape(c, it.c1, it.c2, 1, false);
-      c.fillStyle = '#e6b63c'; c.beginPath(); c.ellipse(-12, -9, 7, 4, -0.3, 0, TAU); c.fill(); break;
+    case 'buonotaglio':
+      c.rotate(-0.08); c.fillStyle = '#fff6d6'; rr2(c, -46, -30, 92, 60, 6); c.strokeStyle = '#c4382f'; c.lineWidth = 2.5; c.setLineDash([5, 4]); c.strokeRect(-41, -25, 82, 50); c.setLineDash([]);
+      c.fillStyle = '#c4382f'; c.font = 'bold 10px sans-serif'; c.textAlign = 'center'; c.fillText('BUONO TAGLIO', 8, -10);
+      c.fillStyle = '#333'; c.font = 'bold 8.5px sans-serif'; c.fillText('da CHRISTIAN', 8, 3); c.fillText('+ zanza Stendhal', 8, 15);
+      c.strokeStyle = '#555'; c.lineWidth = 2.2; c.beginPath(); c.moveTo(-36, -2); c.lineTo(-26, -16); c.moveTo(-36, -16); c.lineTo(-26, -2); c.stroke();
+      c.strokeStyle = '#c4382f'; c.beginPath(); c.arc(-37, 0, 2.6, 0, TAU); c.moveTo(-34.4, -18); c.arc(-37, -18, 2.6, 0, TAU); c.stroke(); break;
     case 'spigola': fishShape(c, it.c1, it.c2, 1.05, true); break;
     case 'spada':
       c.fillStyle = '#9fb3c8'; c.beginPath(); c.moveTo(-34, -2); c.lineTo(-98, 0); c.lineTo(-34, 3); c.closePath(); c.fill();
