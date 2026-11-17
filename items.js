@@ -10,65 +10,65 @@ const TAU = Math.PI * 2;
 const ITEMS = [
   // ───── pesci veri ─────
   { id: 'sardina', n: 'Sardina', k: 'fish', z: [5, 2, 0], pts: 15, a: -6, d: 0.22, c1: '#8fb4cc', c2: '#e8f1f6',
-    t: 'Una sardina. Per te è già un tonno.' },
-  { id: 'acciuga', n: 'Acciuga', k: 'fish', z: [4, 2, 0], pts: 20, a: -6, d: 0.3, c1: '#7aa7b8', c2: '#dcebf0',
-    t: "Un'acciuga. Ti guarda male: secondo lei hai la febbre." },
+    t: "Una sardina! Stasera al bar diventerà un tonno da 200 chili, preso a mani nude, con il mare forza 9." },
   { id: 'buonotaglio', n: 'Buono taglio', k: 'gag', z: [0, 2, 2], pts: 70, a: 8, d: 0.5,
     t: 'Un buono per tagliarsi i capelli da Christian, insieme a tutti gli zanza di Stendhal. Si prenota in gruppo.' },
   { id: 'spigola', n: 'Spigola', k: 'fish', z: [0, 4, 3], pts: 70, a: -12, d: 0.6, c1: '#9aa9b5', c2: '#e6ebef',
-    t: 'Una spigola da manuale. La foto per Instagram è già pronta.' },
+    t: "Una spigola di Sanremo. \"Ne ho pescate quaranta ieri\", dirai. Ieri hai pescato una scarpa." },
   { id: 'polpo', n: 'Polpo', k: 'fish', z: [0, 2, 4], pts: 110, a: -14, d: 0.7, c1: '#c4573c', c2: '#e98b6b',
-    t: 'Un polpo: otto braccia e tutte lavorano. Non è statale.' },
+    t: "Un polpo! Otto braccia e nessuna ti fa male. Che invidia: a te fa male il ginocchio." },
   { id: 'spada', n: 'Pesce spada', k: 'fish', z: [0, 0, 3], pts: 180, a: -18, d: 0.85, c1: '#4f7fb0', c2: '#cfdceb',
-    t: 'Un pesce spada! Finalmente hai un\'arma per le discussioni con Martino.' },
+    t: "Un pesce spada! Domani sarà lungo 4 metri e ti avrà trascinato fino a Montecarlo." },
   { id: 'tonno', n: 'Tonno rosso', k: 'fish', z: [0, 0, 2], pts: 300, a: -25, d: 0.95, c1: '#2d4f8a', c2: '#d9e3f0',
-    t: 'IL TONNO ROSSO! Lo racconterai per anni, ingrandendolo ogni volta.' },
+    t: "Il tonno rosso! Nel racconto diventa una balena. Intanto ti è venuto il mal di schiena." },
 
   // ───── roba assurda ─────
   { id: 'scarpa', n: 'Scarpa', k: 'gag', z: [4, 2, 0], pts: 10, a: 5, d: 0.2,
-    t: "Una scarpa. Dentro c'è ancora il calzino. Ti sembra un sintomo." },
+    t: "Una scarpa da calcio, taglia 46. Ti senti Del Piero. I piedi, però, no." },
   { id: 'ferro', n: 'Ferro da stiro', k: 'gag', z: [3, 3, 0], pts: 25, a: 8, d: 0.35,
-    t: 'Un ferro da stiro! Li riconosci subito: sono i tuoi piedi quando giochi a calcio.' },
+    t: "Un ferro da stiro: il tuo piede destro. Il sinistro è un altro ferro da stiro. Altro che Del Piero." },
   { id: 'pallone', n: 'Pallone sgonfio', k: 'gag', z: [3, 2, 0], pts: 20, a: 6, d: 0.3,
-    t: 'Un pallone sgonfio. Nessuno te lo passa mai, nemmeno in mare.' },
+    t: "Un pallone sgonfio, come il tuo calcetto. Eppure in campo ti senti un campione." },
   { id: 'totebag', n: 'Tote bag', k: 'gag', z: [3, 2, 0], pts: 30, a: 4, d: 0.25,
-    t: 'Una tote bag: "Smantelliamo il capitalismo". Prezzo: 38 euro.' },
+    t: "Una tote bag \"Smantelliamo il capitale\", comprata nella boutique in centro, ovviamente." },
   { id: 'ginocchio', n: 'Il tuo ginocchio', k: 'gag', z: [0, 3, 1], pts: 40, a: 12, d: 0.5,
-    t: 'Hai pescato il TUO ginocchio. Fa male lo stesso.' },
+    t: "Il tuo ginocchio! Fa male anche da pescato: ormai è un dolore autonomo." },
   { id: 'termometro', n: 'Termometro', k: 'gag', z: [0, 3, 2], pts: 35, a: 14, d: 0.4,
-    t: 'Un termometro: 37,1. È chiaramente la fine.' },
+    t: "Un termometro: 37,1. Per te è febbre da cavallo. Scrivi il testamento." },
   { id: 'cartellino', n: 'Cartellino di Martino', k: 'gag', z: [0, 3, 2], pts: 40, a: 10, d: 0.45,
-    t: 'Entrata 07:59, uscita 08:01. Produttività stellare.' },
+    t: "Il cartellino di Martino: entrata 07:59, uscita 08:01. Pagato con le tue tasse." },
   { id: 'bottiglia', n: 'Messaggio in bottiglia', k: 'gag', z: [0, 3, 2], pts: 50, a: 8, d: 0.5,
-    t: '"Ragazzi, addio al celibato di Alessandro: si parte DOMANI. Destinazione: te la dico domani." Firmato: Leopoldo.' },
+    t: "Un messaggio in bottiglia: \"Nessuno pesca bene come me a Sanremo\". Scritto da te. A te stesso." },
   { id: 'rogito', n: 'Rogito in centro', k: 'gag', z: [0, 1, 3], pts: 60, a: 12, d: 0.6,
-    t: 'Il rogito di un 200 mq in centro. "Ma io sono di sinistra." Lo rilanci prima che qualcuno veda.' },
+    t: "Il rogito della tua casa in centro. Sei di sinistra, ma la proprietà privata è sacra." },
   { id: 'cappello', n: 'Cappellino rosso', k: 'gag', z: [0, 0, 3], pts: 60, a: 25, d: 0.75,
-    t: '"Make Martino Great Again". Lo rilanci subito. Non lo tocchi nemmeno con la canna.' },
+    t: "Un cappellino rosso \"Make Martino Great Again\". Reazione: orticaria, tremori e ginocchio." },
   { id: 'martino', n: 'Martino', k: 'gag', z: [0, 0, 3], pts: 90, a: 18, d: 0.8,
-    t: 'Hai pescato Martino! Ha già timbrato ed è tornato a casa. Anche in mare.' },
+    t: "Hai pescato Martino! Ha già timbrato, e il tuo ginocchio ha già ceduto." },
   { id: 'medusa', n: 'Medusa', k: 'gag', z: [0, 2, 2], pts: 30, a: 20, d: 0.5,
-    t: 'Una medusa. Finalmente un sintomo vero!' },
+    t: "Una medusa. Finalmente un sintomo vero! Domani dirai che era uno squalo." },
   { id: 'lucone', n: 'Lucone', k: 'gag', z: [0, 0, 3], pts: 90, a: 18, d: 0.8,
-    t: 'Hai pescato Lucone! Ha timbrato anche lui. Insieme a Martino fa un intero ufficio: e il PIL piange.' },
+    t: "Hai pescato Lucone! Timbra anche lui: Italia ferma e tu hai già mal di schiena." },
   { id: 'tommyv', n: 'Tommy V', k: 'gag', z: [0, 0, 3], pts: 100, a: 22, d: 0.85,
-    t: 'Tommy V, il noto fascistone di Milano. Occhiali scuri, giubbotto nero, zero ironia. Lo rilanci con le pinze.' },
+    t: "Hai pescato Tommy V. Per un progressista come te è peggio di una medusa: orticaria subito." },
+  { id: 'donati', n: 'Donati', k: 'gag', z: [0, 0, 3], pts: 100, a: 20, d: 0.8,
+    t: "Hai pescato Donati! Ti sfotte per la Juve. Risposta automatica: \"30 scudetti sul campo!\"" },
   { id: 'sciarpa', n: 'Sciarpa dell\'Inter', k: 'gag', z: [0, 2, 2], pts: 40, a: 12, d: 0.45,
-    t: 'Una sciarpa nerazzurra. Regalo di Donati: la riconosci dall\'odore di sfottò.' },
+    t: "Una sciarpa dell'Inter, regalo di Donati. Da juventino la odi. Ma fa freddo, e la indossi." },
   { id: 'ariston', n: 'Biglietto Ariston', k: 'gag', z: [0, 2, 2], pts: 70, a: 6, d: 0.55,
-    t: 'Un biglietto per l\'Ariston, 5 serate di fila. Per Sanremo accetti tutto, tranne i canti.' },
+    t: "Un biglietto per l'Ariston. Per Sanremo accetti tutto, anche i cantanti. Ma la schiena in platea fa male." },
   { id: 'scorfano', n: 'Scorfano', k: 'fish', z: [0, 3, 3], pts: 95, a: -12, d: 0.65, c1: '#b8452f', c2: '#e8a58a',
-    t: 'Uno scorfano di Sanremo: brutto come un regalo brutto, ma buonissimo.' },
+    t: "Uno scorfano: brutto, spinoso e si lamenta di tutto. Ti somiglia moltissimo." },
 
   // ───── farmacia ─────
   { id: 'tachipirina', n: 'Tachipirina 1000', k: 'pill', z: [0, 2, 2], pts: 20, a: -30, d: 0.4,
-    t: 'Una Tachipirina 1000. Prendila preventivamente: non si sa mai.' },
+    t: "Una Tachipirina 1000. La prendi in via preventiva, anche con 36 e mezzo." },
   { id: 'ffp2', n: 'Mascherina FFP2', k: 'pill', z: [1, 2, 1], pts: 20, a: -18, d: 0.3,
-    t: 'Una mascherina FFP2. In mare. Perfetta.' },
+    t: "Una FFP2, sotto la barba. Filtra i virus, ma non le tue lamentele." },
   { id: 'juve', n: 'Maglia della Juve', k: 'pill', z: [0, 2, 2], pts: 50, a: -26, d: 0.45,
-    t: 'La maglia bianconera! Il mare si calma. Donati, invece, si arrabbia.' },
+    t: "La maglia della Juve! Ansia giù e petto in fuori: \"30 scudetti sul campo!\"" },
   { id: 'fiori', n: 'Fiori di Sanremo', k: 'pill', z: [2, 2, 0], pts: 30, a: -16, d: 0.3,
-    t: 'Un mazzo di fiori di Sanremo. Profumano di Riviera e di nessuna visita medica.' },
+    t: "Fiori di Sanremo: a Sanremo nemmeno il ginocchio fa male. Per cinque minuti." },
 ];
 
 // ───────────────────────── icone ─────────────────────────
@@ -91,7 +91,6 @@ function drawIcon(c, id, x, y, s) {
   const it = ITEMS.find(i => i.id === id);
   switch (id) {
     case 'sardina': fishShape(c, it.c1, it.c2, 0.85, true); break;
-    case 'acciuga': c.scale(1, 0.8); fishShape(c, it.c1, it.c2, 0.95, false); break;
     case 'buonotaglio':
       c.rotate(-0.08); c.fillStyle = '#fff6d6'; rr2(c, -46, -30, 92, 60, 6); c.strokeStyle = '#c4382f'; c.lineWidth = 2.5; c.setLineDash([5, 4]); c.strokeRect(-41, -25, 82, 50); c.setLineDash([]);
       c.fillStyle = '#c4382f'; c.font = 'bold 10px sans-serif'; c.textAlign = 'center'; c.fillText('BUONO TAGLIO', 8, -10);
@@ -215,6 +214,13 @@ function drawIcon(c, id, x, y, s) {
       c.strokeStyle = '#f2c230'; c.lineWidth = 2.5; c.beginPath(); c.arc(0, 2, 11, 0.15, Math.PI - 0.15); c.stroke();
       c.fillStyle = '#f2c230'; c.beginPath(); c.arc(0, 14, 3.5, 0, TAU); c.fill();
       c.fillStyle = '#e8d6a8'; c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.fillText('MILANO', 0, 34); c.fillStyle = '#333'; c.fillText('AI MIEI TEMPI', 0, 54); break;
+    case 'donati':
+      c.fillStyle = '#0a1a3c'; rr2(c, -26, -4, 52, 42, 8); c.fillStyle = '#2a7fd1'; for (let i = 0; i < 4; i++) c.fillRect(-20 + i * 13, -4, 6, 42);
+      c.fillStyle = '#e8b894'; c.beginPath(); c.arc(0, -22, 19, 0, TAU); c.fill();
+      c.fillStyle = '#3a2418'; c.beginPath(); c.arc(0, -29, 19, Math.PI, TAU); c.fill(); c.fillRect(-19, -31, 38, 5);
+      c.fillStyle = '#111'; c.fillRect(-10, -24, 5, 4); c.fillRect(6, -24, 5, 4);
+      c.strokeStyle = '#7a1f1f'; c.lineWidth = 2.2; c.beginPath(); c.arc(0, -13, 8, 0.15, Math.PI - 0.15); c.stroke();
+      c.fillStyle = '#333'; c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.fillText('FORZA INTER', 0, 54); break;
     case 'sciarpa':
       c.rotate(-0.15);
       for (let i = 0; i < 9; i++) { c.fillStyle = i % 2 ? '#0a1a3c' : '#2a7fd1'; c.fillRect(-45 + i * 10, -14, 10, 28); }

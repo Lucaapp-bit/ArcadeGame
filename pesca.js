@@ -149,7 +149,7 @@ const RANKS = [[0, 'Pescatore della Domenica (di un altro)'], [250, 'Apprendista
   [1400, 'Pescatore Radical Chic'], [2400, 'Leopoldo il Grande, Terrore del Tonno']];
 const rankOf = s => { let r = RANKS[0][1]; for (const [m, n] of RANKS) if (s >= m) r = n; return r; };
 const MUTTER = {
-  sig: ['Quanto cazzo sono forte!', 'Bro, devi andare dallo psicologo.', 'La Meloni è una fascista.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.'],
+  sig: ['Quanto cazzo sono forte!', 'Bro, devi andare dallo psicologo.', 'La Meloni è una fascista.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'Ieri ho preso un tonno da 300 chili. Giuro.', 'Mi fa male la spalla. E il ginocchio. E l\'altra spalla.', 'Si pesca solo a Sanremo. Il resto è acqua.', 'Sono di sinistra, ma il rogito è in centro.', 'Del Piero? Io facevo meglio.'],
   lo: ['Che bella giornata per pescare.', 'Il mare di Sanremo mi rilassa.', 'Oggi si sta bene.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'La Meloni è una fascista.'],
   mid: ['Mi sento strano...', 'Ho un neo sospetto.', 'Secondo me ho la febbre.', 'Mi gira un po\' la testa.', 'Bro, devi andare dallo psicologo.', 'La Meloni è una fascista.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.'],
   hi: ['Sto male. Sto MOLTO male.', 'Chiamate il 118!', 'Non respiro bene. (Respiro benissimo.)', 'È la fine. Dite a mamma.'],
@@ -253,7 +253,7 @@ function catchItem() {
   let pts = it.pts;
   if (it.k === 'fish') { G.combo = Math.min(5, G.combo + 1); pts = it.pts * G.combo; G.stats.fish++; sfx[it.pts >= 180 ? 'big' : 'win'](); }
   else if (it.k === 'pill') { G.stats.pills++; sfx.pill(); }
-  else { G.combo = 0; G.stats.gag++; if (['martino', 'cartellino', 'cappello', 'lucone', 'tommyv', 'sciarpa'].includes(it.id)) G.stats.martino++; sfx.gag(); }
+  else { G.combo = 0; G.stats.gag++; if (['martino', 'cartellino', 'cappello', 'lucone', 'tommyv', 'sciarpa', 'donati'].includes(it.id)) G.stats.martino++; sfx.gag(); }
   G.stats.bestCombo = Math.max(G.stats.bestCombo, G.combo);
   save.bestCombo = Math.max(save.bestCombo, G.combo);
   if (first) { pts += 100; G.stats.dexNew++; }
