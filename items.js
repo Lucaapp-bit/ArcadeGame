@@ -170,8 +170,8 @@ function drawIcon(c, id, x, y, s) {
       c.fillStyle = '#a91f1f'; c.beginPath(); c.ellipse(34, 12, 34, 7, 0.08, 0, TAU); c.fill();
       c.fillStyle = '#fff'; c.font = 'bold 9px sans-serif'; c.textAlign = 'center'; c.fillText('MAKE MARTINO', 0, -10); c.fillText('GREAT AGAIN', 0, 2); break;
     case 'martino':
-      c.fillStyle = '#4c7aa8'; c.fillRect(-22, -4, 44, 40); c.fillStyle = '#e8b894'; c.beginPath(); c.arc(0, -20, 18, 0, TAU); c.fill();
-      c.fillStyle = '#d02d2d'; c.beginPath(); c.moveTo(-18, -24); c.quadraticCurveTo(-16, -44, 0, -44); c.quadraticCurveTo(16, -44, 18, -24); c.closePath(); c.fill(); c.fillRect(-18, -26, 36, 5); c.fillRect(8, -26, 26, 5);
+      c.fillStyle = '#a9c7ee'; c.fillRect(-22, -4, 44, 40); c.fillStyle = '#e8b894'; c.beginPath(); c.arc(0, -20, 18, 0, TAU); c.fill();
+      c.fillStyle = '#8a5a34'; c.beginPath(); c.moveTo(-20, -18); c.quadraticCurveTo(-24, -46, 2, -44); c.quadraticCurveTo(24, -44, 20, -18); c.quadraticCurveTo(14, -32, 2, -31); c.quadraticCurveTo(-12, -30, -20, -18); c.fill(); c.fillStyle = 'rgba(80,55,38,0.6)'; c.beginPath(); c.ellipse(0, -7, 9, 5.5, 0, 0, TAU); c.fill();
       c.fillStyle = '#111'; c.fillRect(-9, -22, 4, 4); c.fillRect(5, -22, 4, 4); c.fillRect(-6, -10, 12, 2);
       c.strokeStyle = '#2d6cdf'; c.lineWidth = 3; c.beginPath(); c.moveTo(-8, -3); c.lineTo(-2, 16); c.moveTo(8, -3); c.lineTo(2, 16); c.stroke();
       c.fillStyle = '#fff'; c.fillRect(-8, 14, 16, 12); c.fillStyle = '#c4382f'; c.fillRect(-8, 14, 16, 3);

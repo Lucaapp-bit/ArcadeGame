@@ -167,22 +167,23 @@ const FORT = {
   pos: [
     'Il PD ha superato Fratelli d\'Italia!', 'È agosto: vai al mare a Sanremo!', 'Donati ha perso il derby. Bro.',
     'Oggi il ginocchio non fa male!', 'Tommy V è bloccato in tangenziale.', '30 scudetti sul campo!',
-    'Martino ha chiesto scusa. (Sta sognando.)', 'Il medico dice: sei sanissimo!', 'Stiamo FORMANDO l\'Italia!',
+    'Nesh ti lascia il suo gatto Gordo: lo devi nutrire per il weekend.', 'Martino ha chiesto scusa. (Sta sognando.)', 'Il medico dice: sei sanissimo!', 'Stiamo FORMANDO l\'Italia!',
   ],
   neg: [
     'Weekend lungo a Milano: paghi lo spritz 15 euro.', 'Paghi più tasse per mantenere Lucone e Martino.',
     'Niente calcetto il lunedì: il ginocchio ti fa male.', 'Donati ti manda il meme dell\'Inter.',
     'Lucone ti sorpassa in coda. Con il cartellino.', 'Tommy V ti invita a cena a Milano.',
-    'Hai comunicato la destinazione dell\'addio al celibato: è ieri.', 'Il tuo piede-ferro-da-stiro sbaglia il rigore.',
+    'Serata con la Gordons: spesi 150 euro per una cena pacco.', 'Il tuo piede-ferro-da-stiro sbaglia il rigore.',
     'Martino timbra e va a casa: il caffè lo paghi tu.',
   ],
 };
 const pickL = L => L[Math.floor(Math.random() * L.length)];
 function rollFort() { return { pos: true, t: pickL(FORT.pos), a: -4, p: 60 }; }
+function setEvent(e) { e.life = 3.2; e.max = 3.2; G.event = e; G.ansia = Math.max(0, G.ansia + e.a); G.score = Math.max(0, G.score + e.p); }
 
 function startRun() {
   Object.assign(G, { mode: 'play', ph: 'idle', pt: 0, time: 0, score: 0, combo: 0, ansia: 8, tc: 0, power: 0, item: null, card: null, reel: null,
-    parts: [], floats: [], ped: null, pedN: 0, nextPed: 20, nextKnee: rnd(15, 24), knee: 0, bubble: null, mut: rnd(5, 8), shake: 0, flash: 0, over: null, bx: LX + 100, by: SEA });
+    parts: [], floats: [], ped: null, pedN: 0, event: null, nextPed: 20, nextKnee: rnd(15, 24), knee: 0, bubble: null, mut: rnd(5, 8), shake: 0, flash: 0, over: null, bx: LX + 100, by: SEA });
   G.stats = { fish: 0, gag: 0, martino: 0, pills: 0, lost: 0, bestCombo: 0, dexNew: 0 };
   save.runs++; persist(); sfx.select();
 }
@@ -239,7 +240,7 @@ function updateReel(dt) {
 }
 function loseLine(a, byPedalo) {
   G.ansia += a; G.combo = 0; G.stats.lost++; sfx.lose();
-  G.malus = { t: pickL(FORT.neg), a: 5, p: -40 }; G.ansia += G.malus.a; G.score = Math.max(0, G.score + G.malus.p);
+  setEvent({ pos: false, t: pickL(FORT.neg), a: 5, p: -40 });
   floater(G.bx, SEA - 20, byPedalo ? (G.ped ? PEOPLE[G.ped.who].n : 'Martino') + ' ti ha tranciato la lenza!' : G.lostMsg, '#ff8a7a', 18);
   if (byPedalo && G.ped) G.ped.say = PEOPLE[G.ped.who].sorry;
   puff(G.bx, SEA, 10, '#dff6ff', 160, 0.6, 2.4); G.cut = 1; setPh('lost');
@@ -254,14 +255,14 @@ function catchItem() {
   G.stats.bestCombo = Math.max(G.stats.bestCombo, G.combo);
   save.bestCombo = Math.max(save.bestCombo, G.combo);
   if (first) { pts += 100; G.stats.dexNew++; }
-  const fo = rollFort(it); G.score = Math.max(0, G.score + pts + fo.p); G.ansia = Math.max(0, G.ansia + (it.a > 0 ? it.a * 0.75 : it.a) + fo.a);
-  (fo.pos ? sfx.win : sfx.lose)();
-  G.card = { it, pts, first, combo: G.combo, done: false, fo };
+  G.score += pts; G.ansia = Math.max(0, G.ansia + (it.a > 0 ? it.a * 0.75 : it.a));
+  G.card = { it, pts, first, combo: G.combo, done: false };
   if (dexCount() === ITEMS.length && !save.done) { save.done = true; G.card.done = true; }
   persist(); setPh('reveal'); G.shake = it.k === 'gag' ? 6 : 0; if (it.k === 'gag') G.flash = 0.15;
 }
 function dismissCard() {
   const done = G.card && G.card.done; G.card = null; G.item = null; setPh('idle'); G.bx = LX + 100;
+  if (!done) setEvent(rollFort());
   if (done) { G.mode = 'finale'; G.finT = 0; sfx.fanfare(); }
 }
 function crisis() {
@@ -298,6 +299,7 @@ function updateEvents(dt) {
 
 function updatePlay(dt) {
   G.pt += dt;
+  if (G.event) { G.event.life -= dt; if (G.event.life <= 0) G.event = null; }
   if (G.ph !== 'reveal') {
     G.time += dt;
     G.ansia += (0.5 + Math.min(0.9, G.time / 240 * 0.9)) * dt;
@@ -323,7 +325,7 @@ function updatePlay(dt) {
       if (u >= 1) { setPh('idle'); G.bx = LX + 100; }
       break;
     }
-    case 'lost': if (G.pt > 2.4) { G.item = null; setPh('idle'); G.bx = LX + 100; } break;
+    case 'lost': if (G.pt > 1.4) { G.item = null; setPh('idle'); G.bx = LX + 100; } break;
     default: break;
   }
   // pedalò che trancia la lenza
@@ -601,18 +603,19 @@ function drawPedalo(p) {
   }
   // persona
   const px = w === 'martino' ? 14 : w === 'lucone' ? 6 : w === 'tommyv' ? -4 : 0;
-  const body = { martino: '#4c7aa8', lucone: '#3f8a5a', tommyv: '#17171c', donati: '#0a1a3c' }[w], big = w === 'lucone' ? 1.25 : 1;
+  const body = { martino: '#a9c7ee', lucone: '#3f8a5a', tommyv: '#17171c', donati: '#0a1a3c' }[w], big = w === 'lucone' ? 1.25 : 1;
   ctx.save(); ctx.translate(px, 0); ctx.scale(big, big);
   ctx.fillStyle = body; rr(ctx, -10, -36, 22, 24, 4); ctx.fill();
   if (w === 'donati') { ctx.fillStyle = '#2a7fd1'; for (let i = 0; i < 3; i++) ctx.fillRect(-7 + i * 7, -36, 3.5, 24); }
   ctx.fillStyle = w === 'tommyv' ? '#e0b08e' : '#e8b894'; ctx.beginPath(); ctx.arc(0, -44, 10, 0, TAU); ctx.fill();
-  if (w === 'martino') { ctx.fillStyle = '#d02d2d'; ctx.beginPath(); ctx.moveTo(-10, -47); ctx.quadraticCurveTo(-9, -60, 0, -60); ctx.quadraticCurveTo(9, -60, 10, -47); ctx.closePath(); ctx.fill(); ctx.fillRect(-12, -48, 22, 3); ctx.fillRect(4, -48, 14, 3); }
+  if (w === 'martino') { ctx.fillStyle = '#8a5a34'; ctx.beginPath(); ctx.moveTo(-11, -42); ctx.quadraticCurveTo(-13, -58, 1, -57); ctx.quadraticCurveTo(13, -57, 11, -43); ctx.quadraticCurveTo(8, -50, 2, -50); ctx.quadraticCurveTo(-5, -49, -11, -42); ctx.fill(); ctx.fillStyle = 'rgba(80,55,38,0.6)'; ctx.beginPath(); ctx.ellipse(0, -37, 5.5, 3.2, 0, 0, TAU); ctx.fill(); }
   if (w === 'lucone') { ctx.fillStyle = '#2a1a12'; ctx.beginPath(); ctx.arc(0, -47, 10, Math.PI, TAU); ctx.fill(); ctx.fillRect(-10, -48, 20, 3); }
   if (w === 'tommyv') { ctx.fillStyle = '#1a1a1f'; ctx.beginPath(); ctx.arc(0, -46, 10.5, Math.PI * 1.02, TAU * 0.995); ctx.fill(); ctx.fillStyle = '#000'; ctx.fillRect(-9, -46, 8, 4.5); ctx.fillRect(1, -46, 8, 4.5); ctx.fillRect(-2, -45, 3, 1.4); }
   if (w === 'donati') { ctx.fillStyle = '#3a2418'; ctx.beginPath(); ctx.arc(0, -47, 10, Math.PI, TAU); ctx.fill(); }
   if (w !== 'tommyv') { ctx.fillStyle = '#111'; ctx.fillRect(-4, -45, 2, 2); ctx.fillRect(3, -45, 2, 2); }
   ctx.fillStyle = '#7a1f1f'; ctx.fillRect(-3, -39, 7, 1.6);
   if (w === 'martino' || w === 'lucone') { ctx.strokeStyle = '#2d6cdf'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-4, -36); ctx.lineTo(-1, -22); ctx.moveTo(4, -36); ctx.lineTo(1, -22); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.fillRect(-4, -23, 8, 7); ctx.fillStyle = '#c4382f'; ctx.fillRect(-4, -23, 8, 2); }
+  if (w === 'martino') { ctx.strokeStyle = '#1a1a1f'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(-8, -36); ctx.lineTo(7, -17); ctx.stroke(); ctx.fillStyle = '#d8d0c0'; rr(ctx, 1, -22, 12, 7, 3); ctx.fill(); }
   if (w === 'tommyv') { ctx.strokeStyle = '#f2c230'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(0, -35, 6, 0.2, Math.PI - 0.2); ctx.stroke(); }
   ctx.restore();
   { const nm = PEOPLE[w].n.toUpperCase(), tw = nm.length * 7.6 + 16; ctx.fillStyle = '#c4382f'; const ny = w === 'lucone' ? -92 : w === 'martino' ? -78 : -82; rr(ctx, px - tw / 2, ny, tw, 17, 8); ctx.fill(); txt(nm, px, ny + 9, 11, '#fff', 'center'); }
@@ -700,10 +703,10 @@ function drawHUD() {
   if (G.ph === 'bite') txt('ABBOCCATO!  ' + (T ? 'TOCCA' : 'PREMI') + ' ORA!', W / 2, 112, 46 + Math.sin(G.t * 30) * 3, '#ffd24d', 'center', 1, '#7a1f1f');
   if (G.ph === 'charge' || G.ph === 'idle') drawZones();
   if (G.ph === 'reel' && G.reel) drawReel();
-  if (G.ph === 'lost' && G.malus) {
-    const k = ease(cl(G.pt / 0.2, 0, 1)), m = G.malus, bw = 520, bh = 76, x = W - bw - 24, y = 128 - (1 - k) * 20;
-    ctx.save(); ctx.globalAlpha = k; ctx.fillStyle = '#f9dcd6'; rr(ctx, x, y, bw, bh, 12); ctx.fill(); ctx.strokeStyle = '#c4382f'; ctx.lineWidth = 3; ctx.stroke();
-    txt('MALUS', x + 18, y + 18, 13, '#c4382f', 'left'); txt('ANSIA +' + m.a + '    ' + m.p + ' punti', x + bw - 18, y + 18, 13, '#c4382f', 'right');
+  if (G.event && G.ph !== 'reveal') {
+    const m = G.event, k = ease(cl((m.max - m.life) / 0.2, 0, 1)) * cl(m.life / 0.35, 0, 1) ** 0.5, col = m.pos ? '#2f8a4a' : '#c4382f', bw = 520, bh = 76, x = W - bw - 24, y = 128 - (1 - k) * 20;
+    ctx.save(); ctx.globalAlpha = k; ctx.fillStyle = m.pos ? '#dff3df' : '#f9dcd6'; rr(ctx, x, y, bw, bh, 12); ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.stroke();
+    txt(m.pos ? 'BONUS' : 'MALUS', x + 18, y + 18, 13, col, 'left'); txt('ANSIA ' + (m.a > 0 ? '+' : '') + m.a + '    ' + (m.p > 0 ? '+' : '') + m.p + ' punti', x + bw - 18, y + 18, 13, col, 'right');
     wrap(m.t, bw - 40, 17).slice(0, 2).forEach((l, i) => txt(l, x + 18, y + 42 + i * 20, 17, '#2a1d10', 'left')); ctx.restore();
   }
 }
@@ -764,7 +767,7 @@ function drawCard() {
   const k = ease(cl(G.pt / 0.25, 0, 1));
   ctx.fillStyle = 'rgba(6,10,30,' + (0.62 * k).toFixed(2) + ')'; ctx.fillRect(0, 0, W, H);
   ctx.save(); ctx.translate(W / 2, H / 2 + (1 - k) * 40); ctx.scale(0.8 + 0.2 * k, 0.8 + 0.2 * k); ctx.globalAlpha = k;
-  const bw = 560, bh = 336, x = -bw / 2, y = -bh / 2;
+  const bw = 560, bh = 292, x = -bw / 2, y = -bh / 2;
   ctx.fillStyle = '#fbf3de'; rr(ctx, x, y, bw, bh, 18); ctx.fill(); ctx.strokeStyle = '#7a5a2c'; ctx.lineWidth = 5; ctx.stroke();
   ctx.fillStyle = c.it.k === 'gag' ? '#e05a4a' : c.it.k === 'pill' ? '#2ba3a3' : '#2f7fbf'; rr(ctx, x, y, bw, 40, 18); ctx.fill(); ctx.fillRect(x, y + 20, bw, 20);
   txt(c.it.k === 'gag' ? 'HAI PESCATO... QUALCOSA' : c.it.k === 'pill' ? 'HAI PESCATO UN FARMACO' : 'HAI PESCATO UN PESCE!', 0, y + 21, 17, '#fff', 'center');
@@ -775,10 +778,6 @@ function drawCard() {
   txt('+' + c.pts + ' punti' + (c.combo > 1 ? '   (combo x' + c.combo + ')' : ''), x + 236, y + 106, 16, '#2f6f9f', 'left');
   txt('ANSIA ' + sign + (c.it.a > 0 ? Math.round(c.it.a * 0.75) : c.it.a), x + 236, y + 130, 16, acol, 'left');
   const lines = wrap(c.it.t, 290, 15); lines.forEach((l, i) => txt(l, x + 236, y + 160 + i * 19, 15, '#4a3a22', 'left'));
-  { const f = c.fo, col = f.pos ? '#2f8a4a' : '#c4382f'; ctx.fillStyle = f.pos ? '#dff3df' : '#f9dcd6'; rr(ctx, x + 22, y + 238, bw - 44, 62, 10); ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.stroke();
-    txt(f.pos ? 'BONUS' : 'MALUS', x + 36, y + 254, 12, col, 'left');
-    txt('ANSIA ' + (f.pos ? '' : '+') + f.a + '    ' + (f.pos ? '+' : '') + f.p + ' punti', x + bw - 36, y + 254, 12, col, 'right');
-    wrap(f.t, bw - 80, 15).slice(0, 2).forEach((l, i) => txt(l, x + 36, y + 274 + i * 17, 15, '#2a1d10', 'left')); }
   if (c.first) { ctx.save(); ctx.translate(x + bw - 72, y + 68); ctx.rotate(0.22); ctx.fillStyle = '#ffd24d'; rr(ctx, -62, -16, 124, 32, 8); ctx.fill(); ctx.strokeStyle = '#a56a10'; ctx.lineWidth = 2; ctx.stroke(); txt('NUOVO! +100', 0, 1, 15, '#5a2a08', 'center'); ctx.restore(); }
   if (G.pt > 0.6) txt(touchMode ? 'tocca per continuare' : 'premi per continuare', 0, y + bh - 14, 13, '#8a7a5a', 'center', 0.6 + 0.4 * Math.sin(G.t * 5));
   ctx.restore();
