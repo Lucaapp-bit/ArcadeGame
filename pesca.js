@@ -8,7 +8,7 @@ const ITEMS = window.PESCA_ITEMS, drawIcon = window.pescaDrawIcon, fishShape = w
 const W = 960, H = 540, TAU = Math.PI * 2, DT = 1 / 60, SEA = 292;
 const LX = 176, LY = SEA - 10;                       // piedi di Leopoldo sul molo
 const FONT = '"Trebuchet MS","Segoe UI",system-ui,sans-serif';
-const BITE_WIN = 1.4;
+const BITE_WIN = 1.1;
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -147,13 +147,14 @@ const RANKS = [[0, 'Pescatore della Domenica (di un altro)'], [250, 'Apprendista
   [1400, 'Pescatore Radical Chic'], [2400, 'Leopoldo il Grande, Terrore del Tonno']];
 const rankOf = s => { let r = RANKS[0][1]; for (const [m, n] of RANKS) if (s >= m) r = n; return r; };
 const MUTTER = {
+  sig: ['Quanto cazzo sono forte!', 'Bro, devi andare dallo psicologo.', 'La Meloni è una fascista.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.'],
   lo: ['Che bella giornata per pescare.', 'Il mare di Sanremo mi rilassa.', 'Oggi si sta bene.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'La Meloni è una fascista.'],
   mid: ['Mi sento strano...', 'Ho un neo sospetto.', 'Secondo me ho la febbre.', 'Mi gira un po\' la testa.', 'Bro, devi andare dallo psicologo.', 'La Meloni è una fascista.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.'],
   hi: ['Sto male. Sto MOLTO male.', 'Chiamate il 118!', 'Non respiro bene. (Respiro benissimo.)', 'È la fine. Dite a mamma.'],
 };
 const PEOPLE = {
   martino: { n: 'Martino', hello: 'Oh no... Martino.', sorry: 'Scusa Leo, sto timbrando!',
-    lines: ['Ciao Leo! Sto timbrando!', 'Ho finito di lavorare... alle 8:01.', 'QUANTO CAZZO SONO FORTE!', 'Leo, il ginocchio?'] },
+    lines: ['Ciao Leo! Sto timbrando!', 'Ho finito di lavorare... alle 8:01.', 'Ho già timbrato, Leo!', 'Leo, il ginocchio?'] },
   lucone: { n: 'Lucone', hello: 'Lucone. Lui e Martino fanno un ufficio.', sorry: 'Pausa caffè, Leo. Torno lunedì.',
     lines: ['Timbrato. Si va a casa.', 'Pausa caffè: tre ore.', 'Io e Martino reggiamo l\'Italia.', 'Leo, le tasse le paghi tu?'] },
   tommyv: { n: 'Tommy V', hello: 'Tommy V... aiuto.', sorry: 'Ai miei tempi si pescava meglio.',
@@ -176,10 +177,8 @@ const FORT = {
     'Martino timbra e va a casa: il caffè lo paghi tu.',
   ],
 };
-function rollFort(it) {
-  const pos = Math.random() < (it.k === 'fish' ? 0.62 : it.k === 'gag' ? 0.38 : 0.5), L = pos ? FORT.pos : FORT.neg;
-  return { pos, t: L[Math.floor(Math.random() * L.length)], a: pos ? -12 : 6, p: pos ? 60 : -40 };
-}
+const pickL = L => L[Math.floor(Math.random() * L.length)];
+function rollFort() { return { pos: true, t: pickL(FORT.pos), a: -4, p: 60 }; }
 
 function startRun() {
   Object.assign(G, { mode: 'play', ph: 'idle', pt: 0, time: 0, score: 0, combo: 0, ansia: 8, tc: 0, power: 0, item: null, card: null, reel: null,
@@ -216,14 +215,14 @@ function pickItem(zone) {
 }
 function initReel() {
   const it = G.item;
-  G.reel = { f: 0.5, ft: 0.5, ftimer: 0, z: 0.5, zv: 0, prog: 0.4, d: it.d, size: lerp(0.44, 0.26, it.d), inside: true, acc: 0 };
+  G.reel = { f: 0.5, ft: 0.5, ftimer: 0, z: 0.5, zv: 0, prog: 0.4, d: it.d, size: lerp(0.38, 0.2, it.d), inside: true, acc: 0 };
   G.bx0 = G.bx; sfx.hook();
 }
 function updateReel(dt) {
   const r = G.reel;
   r.ftimer -= dt;
   if (r.ftimer <= 0) { r.ft = rnd(0.06, 0.94); r.ftimer = rnd(0.5, 1.4) * (1.25 - r.d * 0.6); }
-  const sp = 0.24 + 0.6 * r.d, df = r.ft - r.f;
+  const sp = 0.28 + 0.75 * r.d, df = r.ft - r.f;
   r.f += Math.sign(df) * Math.min(Math.abs(df), sp * dt);
   r.f = cl(r.f + Math.sin(G.time * 9) * 0.12 * r.d * dt, 0.03, 0.97);
   if (G.knee > 0 && Math.random() < dt * 5) r.zv += rnd(-2.4, 2.4);
@@ -232,7 +231,7 @@ function updateReel(dt) {
   if (r.z < lo) { r.z = lo; r.zv = Math.abs(r.zv) * 0.2; }
   if (r.z > hi) { r.z = hi; r.zv = -Math.abs(r.zv) * 0.2; }
   r.inside = Math.abs(r.f - r.z) <= r.size / 2;
-  r.prog += (r.inside ? 0.4 * (1.1 - r.d * 0.3) : -0.12 * (0.6 + 0.7 * r.d)) * dt;
+  r.prog += (r.inside ? 0.36 * (1.1 - r.d * 0.3) : -0.16 * (0.6 + 0.7 * r.d)) * dt;
   r.acc += dt; if (r.acc > 0.12 && r.inside) { r.acc = 0; sfx.tick(); }
   G.bx = lerp(G.bx0, LX + 120, ease(cl(r.prog, 0, 1)));
   if (r.prog >= 1) catchItem();
@@ -240,6 +239,7 @@ function updateReel(dt) {
 }
 function loseLine(a, byPedalo) {
   G.ansia += a; G.combo = 0; G.stats.lost++; sfx.lose();
+  G.malus = { t: pickL(FORT.neg), a: 5, p: -40 }; G.ansia += G.malus.a; G.score = Math.max(0, G.score + G.malus.p);
   floater(G.bx, SEA - 20, byPedalo ? (G.ped ? PEOPLE[G.ped.who].n : 'Martino') + ' ti ha tranciato la lenza!' : G.lostMsg, '#ff8a7a', 18);
   if (byPedalo && G.ped) G.ped.say = PEOPLE[G.ped.who].sorry;
   puff(G.bx, SEA, 10, '#dff6ff', 160, 0.6, 2.4); G.cut = 1; setPh('lost');
@@ -254,7 +254,7 @@ function catchItem() {
   G.stats.bestCombo = Math.max(G.stats.bestCombo, G.combo);
   save.bestCombo = Math.max(save.bestCombo, G.combo);
   if (first) { pts += 100; G.stats.dexNew++; }
-  const fo = rollFort(it); G.score = Math.max(0, G.score + pts + fo.p); G.ansia = Math.max(0, G.ansia + (it.a > 0 ? it.a * 0.5 : it.a) + fo.a);
+  const fo = rollFort(it); G.score = Math.max(0, G.score + pts + fo.p); G.ansia = Math.max(0, G.ansia + (it.a > 0 ? it.a * 0.75 : it.a) + fo.a);
   (fo.pos ? sfx.win : sfx.lose)();
   G.card = { it, pts, first, combo: G.combo, done: false, fo };
   if (dexCount() === ITEMS.length && !save.done) { save.done = true; G.card.done = true; }
@@ -291,8 +291,8 @@ function updateEvents(dt) {
   if (G.bubble) { G.bubble.life -= dt; if (G.bubble.life <= 0) G.bubble = null; }
   G.mut -= dt;
   if (G.mut <= 0 && !G.bubble) {
-    const set = G.ansia < 35 ? MUTTER.lo : G.ansia < 70 ? MUTTER.mid : MUTTER.hi;
-    G.bubble = { t: set[Math.floor(Math.random() * set.length)], life: 2.6 }; G.mut = rnd(8, 13);
+    const set = Math.random() < 0.55 ? MUTTER.sig : G.ansia < 35 ? MUTTER.lo : G.ansia < 70 ? MUTTER.mid : MUTTER.hi;
+    G.bubble = { t: set[Math.floor(Math.random() * set.length)], life: 2.6 }; G.mut = rnd(5, 8);
   }
 }
 
@@ -300,7 +300,7 @@ function updatePlay(dt) {
   G.pt += dt;
   if (G.ph !== 'reveal') {
     G.time += dt;
-    G.ansia += (0.2 + Math.min(0.5, G.time / 300 * 0.5)) * dt;
+    G.ansia += (0.5 + Math.min(0.9, G.time / 240 * 0.9)) * dt;
     updateEvents(dt);
   }
   switch (G.ph) {
@@ -323,7 +323,7 @@ function updatePlay(dt) {
       if (u >= 1) { setPh('idle'); G.bx = LX + 100; }
       break;
     }
-    case 'lost': if (G.pt > 1.1) { G.item = null; setPh('idle'); G.bx = LX + 100; } break;
+    case 'lost': if (G.pt > 2.4) { G.item = null; setPh('idle'); G.bx = LX + 100; } break;
     default: break;
   }
   // pedalò che trancia la lenza
@@ -467,8 +467,8 @@ function drawPier() {
   for (let i = 0; i < 9; i++) { const lx = 44 + Math.sin(i * 2.1) * (18 - Math.floor(i / 3) * 5), ly = dy - 18 - i * 6.5; ctx.globalAlpha = 0.55 + 0.45 * Math.abs(Math.sin(G.t * 3 + i)); ctx.fillStyle = cols[i % 4]; ctx.beginPath(); ctx.arc(lx, ly, 2.8, 0, TAU); ctx.fill(); }
   ctx.globalAlpha = 1; ctx.fillStyle = '#ffd24d'; ctx.beginPath(); for (let i = 0; i < 5; i++) { const a = i / 5 * TAU - Math.PI / 2, b = a + TAU / 10; ctx.lineTo(44 + Math.cos(a) * 7, dy - 136 + Math.sin(a) * 7); ctx.lineTo(44 + Math.cos(b) * 3, dy - 136 + Math.sin(b) * 3); } ctx.closePath(); ctx.fill();
   // cartello
-  ctx.fillStyle = '#6a4a2a'; ctx.fillRect(98, dy - 44, 5, 44); ctx.fillStyle = '#e8d6a8'; rr(ctx, 56, dy - 86, 90, 44, 4); ctx.fill(); ctx.strokeStyle = '#6a4a2a'; ctx.lineWidth = 2; ctx.stroke();
-  txt('VIETATO', 101, dy - 74, 9, '#7a1f1f', 'center'); txt('LAMENTARSI', 101, dy - 63, 9, '#7a1f1f', 'center'); txt('DEL GINOCCHIO', 101, dy - 52, 9, '#7a1f1f', 'center');
+  ctx.fillStyle = '#6a4a2a'; ctx.fillRect(98, dy - 44, 5, 44); ctx.fillStyle = '#e8d6a8'; rr(ctx, 44, dy - 86, 114, 44, 4); ctx.fill(); ctx.strokeStyle = '#6a4a2a'; ctx.lineWidth = 2; ctx.stroke();
+  txt('QUANTO CAZZO', 101, dy - 72, 10.5, '#7a1f1f', 'center'); txt('SONO', 101, dy - 61, 11, '#7a1f1f', 'center'); txt('FORTE!', 101, dy - 50, 11, '#7a1f1f', 'center');
   // lucine lungo il bordo
   ctx.strokeStyle = 'rgba(30,20,10,0.8)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, dy - 4); for (let x = 0; x <= 268; x += 8) ctx.lineTo(x, dy - 4 + Math.sin(x * 0.12) * 3 + 3); ctx.stroke();
   for (let x = 6; x < 268; x += 18) { ctx.fillStyle = cols[Math.floor(x / 18) % 4]; ctx.globalAlpha = 0.5 + 0.5 * Math.abs(Math.sin(G.t * 4 + x)); ctx.beginPath(); ctx.arc(x, dy - 1 + Math.sin(x * 0.12) * 3, 2.4, 0, TAU); ctx.fill(); }
@@ -584,9 +584,6 @@ function drawPedalo(p) {
     ctx.fillStyle = '#f7f7f2'; ctx.beginPath(); ctx.moveTo(-34, -8); ctx.quadraticCurveTo(-64, -20, -52, -48); ctx.lineTo(-44, -46); ctx.quadraticCurveTo(-52, -22, -26, -2); ctx.fill(); ctx.stroke();
     ctx.beginPath(); ctx.arc(-50, -52, 9, 0, TAU); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#f08a2c'; ctx.beginPath(); ctx.moveTo(-58, -52); ctx.lineTo(-70, -48); ctx.lineTo(-58, -46); ctx.fill();
     ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(-52, -55, 1.6, 0, TAU); ctx.fill();
-    // cartellone con la frase preferita
-    ctx.fillStyle = '#6a4a2a'; ctx.fillRect(34, -100, 4, 90); ctx.fillStyle = '#ffe9a8'; rr(ctx, 36, -112, 132, 40, 5); ctx.fill(); ctx.strokeStyle = '#6a4a2a'; ctx.lineWidth = 2; ctx.stroke();
-    txt('QUANTO CAZZO', 102, -100, 12, '#7a1f1f', 'center'); txt('SONO FORTE!', 102, -84, 12, '#7a1f1f', 'center');
   } else if (w === 'lucone') {
     ctx.fillStyle = '#f08a2c'; ctx.beginPath(); ctx.ellipse(0, -5, 50, 13, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = '#a8530f'; ctx.lineWidth = 2.5; ctx.stroke();
     ctx.fillStyle = '#c9702a'; ctx.beginPath(); ctx.ellipse(0, -2, 38, 7, 0, 0, TAU); ctx.fill();
@@ -620,7 +617,7 @@ function drawPedalo(p) {
   ctx.restore();
   { const nm = PEOPLE[w].n.toUpperCase(), tw = nm.length * 7.6 + 16; ctx.fillStyle = '#c4382f'; const ny = w === 'lucone' ? -92 : w === 'martino' ? -78 : -82; rr(ctx, px - tw / 2, ny, tw, 17, 8); ctx.fill(); txt(nm, px, ny + 9, 11, '#fff', 'center'); }
   ctx.restore();
-  bubble(x + 8, y - (w === 'martino' ? 136 : 106), p.say, { size: 13, w: 160 });
+  bubble(x + 8, y - 106, p.say, { size: 13, w: 160 });
 }
 function drawLineAndBobber(rp) {
   const ph = G.ph;
@@ -703,6 +700,12 @@ function drawHUD() {
   if (G.ph === 'bite') txt('ABBOCCATO!  ' + (T ? 'TOCCA' : 'PREMI') + ' ORA!', W / 2, 112, 46 + Math.sin(G.t * 30) * 3, '#ffd24d', 'center', 1, '#7a1f1f');
   if (G.ph === 'charge' || G.ph === 'idle') drawZones();
   if (G.ph === 'reel' && G.reel) drawReel();
+  if (G.ph === 'lost' && G.malus) {
+    const k = ease(cl(G.pt / 0.2, 0, 1)), m = G.malus, bw = 520, bh = 76, x = W - bw - 24, y = 128 - (1 - k) * 20;
+    ctx.save(); ctx.globalAlpha = k; ctx.fillStyle = '#f9dcd6'; rr(ctx, x, y, bw, bh, 12); ctx.fill(); ctx.strokeStyle = '#c4382f'; ctx.lineWidth = 3; ctx.stroke();
+    txt('MALUS', x + 18, y + 18, 13, '#c4382f', 'left'); txt('ANSIA +' + m.a + '    ' + m.p + ' punti', x + bw - 18, y + 18, 13, '#c4382f', 'right');
+    wrap(m.t, bw - 40, 17).slice(0, 2).forEach((l, i) => txt(l, x + 18, y + 42 + i * 20, 17, '#2a1d10', 'left')); ctx.restore();
+  }
 }
 function drawZones() {
   const y = SEA - 3;
@@ -770,7 +773,7 @@ function drawCard() {
   txt(c.it.n, x + 236, y + 78, 25, '#3a2410', 'left');
   const sign = c.it.a > 0 ? '+' : '', acol = c.it.a > 0 ? '#c4382f' : '#2f8a4a';
   txt('+' + c.pts + ' punti' + (c.combo > 1 ? '   (combo x' + c.combo + ')' : ''), x + 236, y + 106, 16, '#2f6f9f', 'left');
-  txt('ANSIA ' + sign + (c.it.a > 0 ? Math.round(c.it.a * 0.5) : c.it.a), x + 236, y + 130, 16, acol, 'left');
+  txt('ANSIA ' + sign + (c.it.a > 0 ? Math.round(c.it.a * 0.75) : c.it.a), x + 236, y + 130, 16, acol, 'left');
   const lines = wrap(c.it.t, 290, 15); lines.forEach((l, i) => txt(l, x + 236, y + 160 + i * 19, 15, '#4a3a22', 'left'));
   { const f = c.fo, col = f.pos ? '#2f8a4a' : '#c4382f'; ctx.fillStyle = f.pos ? '#dff3df' : '#f9dcd6'; rr(ctx, x + 22, y + 238, bw - 44, 62, 10); ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.stroke();
     txt(f.pos ? 'BONUS' : 'MALUS', x + 36, y + 254, 12, col, 'left');
