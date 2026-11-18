@@ -166,9 +166,9 @@ const RANKS = [[0, 'Pescatore della Domenica (di un altro)'], [250, 'Apprendista
   [1400, 'Pescatore Radical Chic'], [2400, 'Leopoldo il Grande, Terrore del Tonno']];
 const rankOf = s => { let r = RANKS[0][1]; for (const [m, n] of RANKS) if (s >= m) r = n; return r; };
 const MUTTER = {
-  sig: ['Quanto cazzo sono forte!', 'Bro, devi andare dallo psicologo.', 'La Meloni è una fascista.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'Ieri ho preso un tonno da 300 chili. Giuro.', 'Mi fa male la spalla. E il ginocchio. E l\'altra spalla.', 'Si pesca solo a Sanremo. Il resto è acqua.', 'Sono di sinistra, ma il rogito è in centro.', 'Del Piero? Io facevo meglio.'],
-  lo: ['Che bella giornata per pescare.', 'Il mare di Sanremo mi rilassa.', 'Oggi si sta bene.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'La Meloni è una fascista.'],
-  mid: ['Mi sento strano...', 'Ho un neo sospetto.', 'Secondo me ho la febbre.', 'Mi gira un po\' la testa.', 'Bro, devi andare dallo psicologo.', 'La Meloni è una fascista.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.'],
+  sig: ['Quanto cazzo sono forte!', 'Bro, devi andare dallo psicologo.', 'Quanto cazzo siete fragili!', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'Ieri ho preso un tonno da 300 chili. Giuro.', 'Mi fa male la spalla. E il ginocchio. E l\'altra spalla.', 'Si pesca solo a Sanremo. Il resto è acqua.', 'Sono di sinistra, ma il rogito è in centro.', 'Del Piero? Io facevo meglio.'],
+  lo: ['Che bella giornata per pescare.', 'Il mare di Sanremo mi rilassa.', 'Oggi si sta bene.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'Quanto cazzo siete fragili!'],
+  mid: ['Mi sento strano...', 'Ho un neo sospetto.', 'Secondo me ho la febbre.', 'Mi gira un po\' la testa.', 'Bro, devi andare dallo psicologo.', 'Quanto cazzo siete fragili!', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.'],
   hi: ['Sto male. Sto MOLTO male.', 'Chiamate il 118!', 'Non respiro bene. (Respiro benissimo.)', 'È la fine. Dite a mamma.'],
 };
 const PEOPLE = {
@@ -186,7 +186,7 @@ const FORT = {
   pos: [
     'Il PD ha superato Fratelli d\'Italia!', 'È agosto: vai al mare a Sanremo!', 'Donati ha perso il derby. Bro.',
     'Oggi il ginocchio non fa male!', 'Tommy V è bloccato in tangenziale.', '30 scudetti sul campo!',
-    'Nesh ti lascia il suo gatto Gordo: lo devi nutrire per il weekend.', 'Martino ha chiesto scusa. (Sta sognando.)', 'Il medico dice: sei sanissimo!', 'Biden rivince le elezioni USA: la democrazia è salva!', 'Stiamo FORMANDO l\'Italia!',
+    'Nesh ti lascia il suo gatto Gordo: lo devi nutrire per il weekend.', 'Martino ha chiesto scusa. (Sta sognando.)', 'Il medico dice: sei sanissimo!', 'Biden rivince le elezioni USA: la democrazia è salva!', 'Suoni al Barrios e i tuoi amici non inventano palle per bloccarti.', 'Stiamo FORMANDO l\'Italia!',
   ],
   neg: [
     'Weekend lungo a Milano: paghi lo spritz 15 euro.', 'Paghi più tasse per mantenere Lucone e Martino.',
