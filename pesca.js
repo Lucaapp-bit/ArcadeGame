@@ -180,7 +180,7 @@ const PEOPLE = {
   lucone: { n: 'Lucone', hello: 'Lucone. Lui e Martino fanno un ufficio.', sorry: 'Pausa caffè, Leo. Torno lunedì.',
     lines: ['Timbrato. Si va a casa.', 'Pausa caffè: tre ore.', 'Io e Martino reggiamo l\'Italia.', 'Leo, le tasse le paghi tu?'] },
   tommyv: { n: 'Tommy V', hello: 'Tommy V... aiuto.', sorry: 'Ai miei tempi si pescava meglio.',
-    lines: ['Vincere e vinceremo!', 'Boia chi molla!', 'Qui ci vuole ordine, Leo!'] },
+    lines: ['Vincere e vinceremo!', 'Boia chi molla!', 'Qui ci vuole ordine, Leo!', 'Quando c\'era LVI si stava meglio!'] },
   donati: { n: 'Donati', hello: '30 scudetti sul campo!', sorry: 'Juventino! Ahahah!',
     lines: ['Juventino! Ahahah!', 'Inter campione, Leo!', 'Calciopoli, Leo. Calciopoli.', 'La Juve? Dai, dai...'] },
 };
