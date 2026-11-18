@@ -180,7 +180,7 @@ const PEOPLE = {
   lucone: { n: 'Lucone', hello: 'Lucone. Lui e Martino fanno un ufficio.', sorry: 'Pausa caffè, Leo. Torno lunedì.',
     lines: ['Timbrato. Si va a casa.', 'Pausa caffè: tre ore.', 'Io e Martino reggiamo l\'Italia.', 'Leo, le tasse le paghi tu?'] },
   tommyv: { n: 'Tommy V', hello: 'Tommy V... aiuto.', sorry: 'Ai miei tempi si pescava meglio.',
-    lines: ['Vincere e vinceremo!', 'Boia chi molla!', 'Me ne frego del tuo ginocchio!', 'Qui ci vuole ordine, Leo!', 'Leo, aperitivo a Brera?'] },
+    lines: ['Vincere e vinceremo!', 'Boia chi molla!', 'Me ne frego del tuo ginocchio!', 'Qui ci vuole ordine, Leo!'] },
   donati: { n: 'Donati', hello: '30 scudetti sul campo!', sorry: 'Juventino! Ahahah!',
     lines: ['Juventino! Ahahah!', 'Inter campione, Leo!', 'Calciopoli, Leo. Calciopoli.', 'La Juve? Dai, dai...'] },
 };
@@ -207,7 +207,7 @@ function setEvent(e) { e.life = 3.2; e.max = 3.2; G.event = e; G.ansia = Math.ma
 
 function startRun() {
   Object.assign(G, { mode: 'play', ph: 'idle', pt: 0, time: 0, score: 0, combo: 0, ansia: 8, tc: 0, power: 0, item: null, card: null, reel: null,
-    parts: [], floats: [], ped: null, pedN: 0, event: null, nextPed: 20, nextKnee: rnd(15, 24), knee: 0, bubble: null, mut: rnd(5, 8), shake: 0, flash: 0, over: null, bx: LX + 100, by: SEA });
+    parts: [], floats: [], ped: null, pedQ: ['tommyv'], event: null, nextPed: 12, nextKnee: rnd(15, 24), knee: 0, bubble: null, mut: rnd(5, 8), shake: 0, flash: 0, over: null, bx: LX + 100, by: SEA });
   G.stats = { fish: 0, gag: 0, martino: 0, pills: 0, lost: 0, bestCombo: 0, dexNew: 0, bestFish: null, lastEnemy: null }; G.cameo = null; G.nextCameo = rnd(12, 18); G.phaseIdx = 0;
   save.runs++; persist(); sfx.select();
 }
@@ -323,12 +323,13 @@ function updateEvents(dt) {
   // pedalò di Martino
   G.nextPed -= dt;
   if (G.nextPed <= 0 && !G.ped) {
-    const who = PEOPLE_IDS[G.pedN++ % 4], P = PEOPLE[who];
-    G.ped = { x: W + 90, who, say: P.lines[Math.floor(Math.random() * P.lines.length)] };
-    G.nextPed = rnd(28, 44); G.ansia += 2; sfx.horn();
+    if (!G.pedQ.length) G.pedQ = PEOPLE_IDS.slice().sort(() => Math.random() - 0.5);
+    const who = G.pedQ.shift(), P = PEOPLE[who], ls = P.lines.slice().sort(() => Math.random() - 0.5);
+    G.ped = { x: W + 90, who, say: ls[0], say2: ls[1] };
+    G.nextPed = rnd(24, 36); G.ansia += 2; sfx.horn();
     G.bubble = { t: P.hello, life: 2.4 };
   }
-  if (G.ped) { G.ped.x -= 88 * dt; if (G.ped.x < -110) G.ped = null; }
+  if (G.ped) { G.ped.x -= 88 * dt; if (G.ped.x < 420 && G.ped.say2) { G.ped.say = G.ped.say2; G.ped.say2 = null; } if (G.ped.x < -110) G.ped = null; }
   G.nextCameo -= dt;
   if (G.nextCameo <= 0 && !G.cameo) {
     const who = PEOPLE_IDS[Math.floor(Math.random() * 4)], P = PEOPLE[who];
