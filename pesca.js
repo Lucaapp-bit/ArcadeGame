@@ -36,9 +36,26 @@ function wpick(list, wf) {
 }
 
 // ───────────────────────── salvataggio ─────────────────────────
-let save = { best: 0, dex: {}, runs: 0, bestCombo: 0, done: false };
-try { const s = JSON.parse(localStorage.getItem('leopoldo.save')); if (s && s.dex) save = Object.assign(save, s); } catch (e) {}
-const persist = () => { try { localStorage.setItem('leopoldo.save', JSON.stringify(save)); } catch (e) {} };
+const blankSave = () => ({ best: 0, dex: {}, runs: 0, bestCombo: 0, done: false });
+let save = blankSave(), profiles = { names: [], current: null };
+try { const p = JSON.parse(localStorage.getItem('leopoldo.profiles')); if (p && Array.isArray(p.names)) profiles = p; } catch (e) {}
+const slug = n => n.trim().toLowerCase().replace(/[^a-z0-9àèéìòù]+/g, '-').slice(0, 24) || 'ospite';
+const skey = n => 'leopoldo.save.' + slug(n);
+const readSave = n => { let o = blankSave(); try { const r = JSON.parse(localStorage.getItem(skey(n))); if (r && r.dex) o = Object.assign(o, r); } catch (e) {} return o; };
+const saveProfiles = () => { try { localStorage.setItem('leopoldo.profiles', JSON.stringify(profiles)); } catch (e) {} };
+const persist = () => { if (!profiles.current) return; try { localStorage.setItem(skey(profiles.current), JSON.stringify(save)); } catch (e) {} };
+function selectProfile(n) { profiles.current = n; save = readSave(n); saveProfiles(); }
+function createProfile(raw) {
+  const n = raw.trim().slice(0, 14); if (!n) return false;
+  const ex = profiles.names.find(x => slug(x) === slug(n)); const name = ex || n;
+  if (!ex) {
+    profiles.names.push(name);
+    if (profiles.names.length === 1) { try { const old = localStorage.getItem('leopoldo.save'); if (old && !localStorage.getItem(skey(name))) localStorage.setItem(skey(name), old); } catch (e) {} }
+  }
+  selectProfile(name); return true;
+}
+function askName() { let n = null; try { n = window.prompt('Come ti chiami, pescatore?', ''); } catch (e) {} return n && createProfile(n); }
+if (profiles.current && profiles.names.includes(profiles.current)) save = readSave(profiles.current); else profiles.current = null;
 const dexCount = () => ITEMS.filter(i => save.dex[i.id]).length;
 
 
@@ -748,7 +765,8 @@ function drawReel() {
 
 // ───────────────────────── schermate ─────────────────────────
 const BTN = {
-  title: [{ id: 'play', x: W / 2 - 150, y: 392, w: 300, h: 56 }, { id: 'dex', x: W / 2 - 150, y: 458, w: 300, h: 42 }],
+  title: [{ id: 'play', x: W / 2 - 150, y: 392, w: 300, h: 56 }, { id: 'dex', x: W / 2 - 150, y: 458, w: 300, h: 42 }, { id: 'who', x: W / 2 - 170, y: 14, w: 340, h: 40 }],
+  prof: [{ id: 'new', x: W / 2 - 170, y: 436, w: 340, h: 46 }, { id: 'back', x: W / 2 - 90, y: 490, w: 180, h: 40 }],
   over: [{ id: 'retry', x: W / 2 - 160, y: 456, w: 150, h: 46 }, { id: 'dex', x: W / 2 + 10, y: 456, w: 150, h: 46 }],
   dex: [{ id: 'back', x: W / 2 - 90, y: 490, w: 180, h: 44 }],
 };
@@ -757,6 +775,7 @@ function button(b, label, main) {
   if (!main) { ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2; ctx.stroke(); }
   txt(label, b.x + b.w / 2, b.y + b.h / 2 + 1, (main ? 24 : 16) * Math.min(1.25, uk()), main ? '#5a2a08' : '#fff', 'center');
 }
+const profRect = i => ({ x: W / 2 - 270, y: 92 + i * 56, w: 540, h: 48 });
 function drawTitle() {
   drawSky(); drawSea(); drawPier();
   const rp = drawLeo(LX, LY); drawLineAndBobber(rp);
@@ -766,9 +785,10 @@ function drawTitle() {
   txt('GRAN PESCA DI NATALE', W / 2, 218 + b, 34, '#fff', 'center', 1, '#4a1a0a');
   txt('edizione regalo brutto · 2026', W / 2, 258, 18, '#ffb7a8', 'center', 1, 'rgba(0,0,0,0.5)');
   txt('Tieni a bada l\'ansia. Pesca. Evita Martino.', W / 2, 300, 17, '#fff', 'center', 0.92, 'rgba(0,0,0,0.5)');
+  button(BTN.title[2], profiles.current ? 'GIOCATORE: ' + profiles.current.toUpperCase() + '  ▾' : 'SCEGLI IL GIOCATORE  ▾');
   button(BTN.title[0], touchMode ? 'TOCCA PER PESCARE' : 'PESCA!', true);
   button(BTN.title[1], 'PESCADEX  ' + dexCount() + '/' + ITEMS.length);
-  if (save.best > 0) txt('RECORD ' + String(save.best).padStart(6, '0'), W / 2, 520, 14, '#cfe0ff', 'center', 0.9, 'rgba(0,0,0,0.5)');
+  if (save.best > 0) txt((profiles.current ? 'RECORD DI ' + profiles.current.toUpperCase() + '  ' : 'RECORD ') + String(save.best).padStart(6, '0'), W / 2, 520, 14, '#cfe0ff', 'center', 0.9, 'rgba(0,0,0,0.5)');
 }
 function drawCard() {
   const c = G.card; if (!c) return;
@@ -818,9 +838,20 @@ function drawOver() {
   if (G.overT > 0.9) { button(BTN.over[0], 'RIPROVA', true); button(BTN.over[1], 'PESCADEX'); }
 }
 function dexRect(i) { const col = i % 7, row = Math.floor(i / 7); return { x: 22 + col * 132, y: 70 + row * 82, w: 124, h: 74 }; }
+function drawProfiles() {
+  drawSky(); drawSea(); ctx.fillStyle = 'rgba(8,14,40,0.82)'; ctx.fillRect(0, 0, W, H);
+  txt('CHI GIOCA?', W / 2, 52, 40, '#ffd24d', 'center', 1, '#4a1a0a');
+  profiles.names.slice(0, 6).forEach((n, i) => {
+    const r = profRect(i), sv = readSave(n), cur = n === profiles.current;
+    ctx.fillStyle = cur ? 'rgba(255,210,77,0.25)' : 'rgba(255,255,255,0.12)'; rr(ctx, r.x, r.y, r.w, r.h, 12); ctx.fill(); if (cur) { ctx.strokeStyle = '#ffd24d'; ctx.lineWidth = 3; ctx.stroke(); }
+    txt(n.toUpperCase(), r.x + 20, r.y + r.h / 2, 22, '#fff', 'left');
+    txt('Pescadex ' + ITEMS.filter(it => sv.dex[it.id]).length + '/' + ITEMS.length + '   Record ' + sv.best, r.x + r.w - 20, r.y + r.h / 2, 16, '#cfe0ff', 'right');
+  });
+  button(BTN.prof[0], '+ NUOVO GIOCATORE', true); button(BTN.prof[1], 'INDIETRO');
+}
 function drawDex() {
   const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#13204a'); g.addColorStop(1, '#0a2a55'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  txt('PESCADEX', W / 2, 34, 34, '#ffd24d', 'center', 1, '#000');
+  txt(profiles.current ? 'PESCADEX DI ' + profiles.current.toUpperCase() : 'PESCADEX', W / 2, 34, 34, '#ffd24d', 'center', 1, '#000');
   txt(dexCount() + ' / ' + ITEMS.length + ' scoperti' + (save.done ? '   ★ COMPLETO ★' : ''), W / 2, 60, 14, '#9fc0e8', 'center');
   ITEMS.forEach((it, i) => {
     const r = dexRect(i), got = !!save.dex[it.id], sel = G.sel === i;
@@ -861,6 +892,7 @@ function render() {
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
   const m = G.mode;
   if (m === 'dex') drawDex();
+  else if (m === 'profiles') drawProfiles();
   else if (m === 'title') { drawTitle(); drawParts(); }
   else {
     if (G.shake > 0) ctx.translate(rnd(-1, 1) * G.shake * 0.5, rnd(-1, 1) * G.shake * 0.5);
@@ -888,12 +920,16 @@ function render() {
 function down() { audio(); startAmb(); if (holding) return; holding = true; press(); }
 function up() { if (!holding) return; holding = false; release(); }
 function toggleMute() { muted = !muted; try { localStorage.setItem('leopoldo.mute', muted ? '1' : '0'); } catch (e) {} if (!muted) { startAmb(); tone(660, 0.1, 'triangle', 0.07); } setAmb(); }
+function openProfiles() { G.mode = 'profiles'; holding = false; sfx.select(); }
 function openDex(from) { G.prevMode = from; G.mode = 'dex'; holding = false; sfx.select(); }
 function closeDex() { G.mode = G.prevMode === 'play' ? 'play' : G.prevMode === 'over' ? 'over' : 'title'; sfx.select(); }
 window.addEventListener('keydown', e => {
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
   if (e.repeat) return;
   audio(); startAmb();
+  if (G.mode === 'profiles') { if (e.code === 'Escape') G.mode = 'title'; return; }
+  if (G.mode === 'title' && e.code === 'KeyG') { openProfiles(); return; }
+  if (G.mode === 'title' && !profiles.current && (e.code === 'Space' || e.code === 'Enter')) { if (!askName()) return; }
   if (G.mode === 'dex') {
     if (e.code === 'Escape' || e.code === 'KeyC' || e.code === 'Enter') closeDex();
     else if (e.code === 'ArrowRight') G.sel = Math.min(ITEMS.length - 1, G.sel + 1);
@@ -917,7 +953,12 @@ canvas.addEventListener('pointerdown', e => {
   try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
   if (e.pointerType === 'touch') touchMode = true;
   const p = toWorld(e), m = G.mode;
-  if (m === 'title') { for (const b of BTN.title) if (inB(p, b)) { if (b.id === 'play') startRun(); else openDex('title'); return; } return; }
+  if (m === 'profiles') {
+    profiles.names.slice(0, 6).forEach((n, i) => { if (inR(p, profRect(i))) { selectProfile(n); G.mode = 'title'; sfx.select(); } });
+    if (inB(p, BTN.prof[0])) { if (askName()) G.mode = 'title'; } else if (inB(p, BTN.prof[1])) { G.mode = 'title'; sfx.select(); }
+    return;
+  }
+  if (m === 'title') { for (const b of BTN.title) if (inB(p, b)) { if (b.id === 'play') { if (!profiles.current && !askName()) return; startRun(); } else if (b.id === 'who') openProfiles(); else openDex('title'); return; } return; }
   if (m === 'over') { if (G.overT > 0.9) for (const b of BTN.over) if (inB(p, b)) { if (b.id === 'retry') startRun(); else openDex('over'); return; } return; }
   if (m === 'dex') { if (inB(p, BTN.dex[0])) { closeDex(); return; } ITEMS.forEach((it, i) => { if (inR(p, dexRect(i))) { G.sel = i; sfx.select(); } }); return; }
   if (m === 'play' && touchMode && inB(p, PAUSE_BTN)) { G.mode = 'paused'; holding = false; return; }
