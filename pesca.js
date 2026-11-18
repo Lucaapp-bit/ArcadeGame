@@ -165,6 +165,9 @@ const ZN = ['VICINO', 'MEDIO', 'LARGO'];
 const RANKS = [[0, 'Pescatore della Domenica (di un altro)'], [250, 'Apprendista Ansioso'], [700, 'Lupo di Mare con Tachipirina'],
   [1400, 'Pescatore Radical Chic'], [2400, 'Leopoldo il Grande, Terrore del Tonno']];
 const rankOf = s => { let r = RANKS[0][1]; for (const [m, n] of RANKS) if (s >= m) r = n; return r; };
+const RAP = ['Yo! Canna in mano, ginocchio che duole: pesco a Sanremo e il resto non vuole.', 'Timbra Martino, Lucone sbadiglia: io pesco tonni, questa è la mia famiglia.',
+  'Donati, zitto, la Juve è storia: trenta scudetti, tu solo memoria.', 'Dal Barrios a Sanremo, flow da campione: il ginocchio fa male, ma ho il rogito in salone.',
+  'Tommy V mi scrive: ordine e disciplina. Io rispondo: Tachipirina.', 'Sono rapper, sono pescatore: il ginocchio è il mio cuore (e il mio dolore).'];
 const MUTTER = {
   sig: ['Quanto cazzo sono forte!', 'Bro, devi andare dallo psicologo.', 'Quanto cazzo siete fragili!', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'Ieri ho preso un tonno da 300 chili. Giuro.', 'Mi fa male la spalla. E il ginocchio. E l\'altra spalla.', 'Si pesca solo a Sanremo. Il resto è acqua.', 'Sono di sinistra, ma il rogito è in centro.', 'Del Piero? Io facevo meglio.'],
   lo: ['Che bella giornata per pescare.', 'Il mare di Sanremo mi rilassa.', 'Oggi si sta bene.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'Quanto cazzo siete fragili!'],
@@ -177,7 +180,7 @@ const PEOPLE = {
   lucone: { n: 'Lucone', hello: 'Lucone. Lui e Martino fanno un ufficio.', sorry: 'Pausa caffè, Leo. Torno lunedì.',
     lines: ['Timbrato. Si va a casa.', 'Pausa caffè: tre ore.', 'Io e Martino reggiamo l\'Italia.', 'Leo, le tasse le paghi tu?'] },
   tommyv: { n: 'Tommy V', hello: 'Tommy V... aiuto.', sorry: 'Ai miei tempi si pescava meglio.',
-    lines: ['Milano non è più quella di una volta.', 'Leo, aperitivo a Brera?', 'Stai coi radical chic, eh?', 'Qui ci vuole ordine!'] },
+    lines: ['Vincere e vinceremo!', 'Boia chi molla!', 'Me ne frego del tuo ginocchio!', 'Qui ci vuole ordine, Leo!', 'Leo, aperitivo a Brera?'] },
   donati: { n: 'Donati', hello: '30 scudetti sul campo!', sorry: 'Juventino! Ahahah!',
     lines: ['Juventino! Ahahah!', 'Inter campione, Leo!', 'Calciopoli, Leo. Calciopoli.', 'La Juve? Dai, dai...'] },
 };
@@ -188,13 +191,15 @@ const FORT = {
     'Oggi il ginocchio non fa male!', 'Tommy V è bloccato in tangenziale.', '30 scudetti sul campo!',
     'Nesh ti lascia il suo gatto Gordo: lo devi nutrire per il weekend.', 'Martino ha chiesto scusa. (Sta sognando.)', 'Il medico dice: sei sanissimo!', 'Biden rivince le elezioni USA: la democrazia è salva!', 'Suoni al Barrios e i tuoi amici non inventano palle per balzarti.', 'Stiamo FORMANDO l\'Italia!',
   ],
-  neg: [
-    'Weekend lungo a Milano: paghi lo spritz 15 euro.', 'Paghi più tasse per mantenere Lucone e Martino.',
-    'Niente calcetto il lunedì: il ginocchio ti fa male.', 'La Juve ha perso anche questo weekend: sfottò a raffica di Donati.', 'Matrimonio Gordons in Sudafrica: ti partono 1500 euro.',
-    'Lucone ti sorpassa in coda. Con il cartellino.', 'Tommy V ti invita a cena a Milano.',
-    'Serata con la Gordons: spesi 150 euro per una cena pacco.', 'Il tuo piede-ferro-da-stiro sbaglia il rigore.',
-    'Martino timbra e va a casa: il caffè lo paghi tu.',
-  ],
+  neg: [],
+};
+const NEG = {
+  late: ['Distratto: guardavi il neo sospetto sul braccio.', 'Hai letto il gruppo: Donati parlava di Juve. Il pesce intanto è andato.', 'Mentre eri distratto, il ginocchio ha chiesto aiuto.'],
+  reel: ['Il ginocchio ha ceduto sul più bello.', 'Ti si è addormentato il braccio: sospetto infarto.', 'Niente calcetto il lunedì: il ginocchio ti fa male.', 'Il tuo piede-ferro-da-stiro sbaglia il rigore.', 'Weekend lungo a Milano: paghi lo spritz 15 euro.', 'Serata con la Gordons: spesi 150 euro per una cena pacco.', 'Matrimonio Gordons in Sudafrica: ti partono 1500 euro.'],
+  martino: ['Martino timbra e va a casa: il caffè lo paghi tu.', 'Paghi più tasse per mantenere Lucone e Martino.', 'Martino ha tagliato la lenza ed è già fuori orario: non risponde.'],
+  lucone: ['Lucone ti sorpassa in coda. Con il cartellino.', 'Lucone è in pausa caffè dal 2019. La tua lenza no.', 'Paghi più tasse per mantenere Lucone e Martino.'],
+  tommyv: ['Tommy V ti invita a cena a Milano.', 'Tommy V ti spiega l\'ordine: 40 minuti, senza pesce.', 'Orticaria da Tommy V: tre giorni di cortisone.'],
+  donati: ['La Juve ha perso anche questo weekend: sfottò a raffica di Donati.', 'Donati canta il coro dell\'Inter a Sanremo.', 'Donati ti ricorda il derby. Anche sott\'acqua.'],
 };
 const pickL = L => L[Math.floor(Math.random() * L.length)];
 function rollFort() { return { pos: true, t: pickL(FORT.pos), a: -4, p: 60 }; }
@@ -203,7 +208,7 @@ function setEvent(e) { e.life = 3.2; e.max = 3.2; G.event = e; G.ansia = Math.ma
 function startRun() {
   Object.assign(G, { mode: 'play', ph: 'idle', pt: 0, time: 0, score: 0, combo: 0, ansia: 8, tc: 0, power: 0, item: null, card: null, reel: null,
     parts: [], floats: [], ped: null, pedN: 0, event: null, nextPed: 20, nextKnee: rnd(15, 24), knee: 0, bubble: null, mut: rnd(5, 8), shake: 0, flash: 0, over: null, bx: LX + 100, by: SEA });
-  G.stats = { fish: 0, gag: 0, martino: 0, pills: 0, lost: 0, bestCombo: 0, dexNew: 0 };
+  G.stats = { fish: 0, gag: 0, martino: 0, pills: 0, lost: 0, bestCombo: 0, dexNew: 0, bestFish: null, lastEnemy: null }; G.cameo = null; G.nextCameo = rnd(12, 18); G.phaseIdx = 0;
   save.runs++; persist(); sfx.select();
 }
 const setPh = p => { G.ph = p; G.pt = 0; };
@@ -231,7 +236,8 @@ function doCast() {
 }
 function pickItem(zone) {
   const g = 1 + Math.min(1.2, G.time / 150);
-  return wpick(ITEMS, it => it.z[zone] * (it.k === 'gag' ? g : 1));
+  const pi = Math.floor((G.time % (PH_LEN * 3)) / PH_LEN), BOOST = [{ donati: 2, juve: 2 }, { polpo: 3, spada: 2, medusa: 2, termometro: 2 }, { sardina: 2, spigola: 2, cartellino: 2, martino: 2 }][pi];
+  return wpick(ITEMS, it => it.z[zone] * (it.k === 'gag' ? g : 1) * (BOOST[it.id] || 1));
 }
 function initReel() {
   const it = G.item;
@@ -255,11 +261,12 @@ function updateReel(dt) {
   r.acc += dt; if (r.acc > 0.12 && r.inside) { r.acc = 0; sfx.tick(); }
   G.bx = lerp(G.bx0, LX + 120, ease(cl(r.prog, 0, 1)));
   if (r.prog >= 1) catchItem();
-  else if (r.prog <= 0) { G.lostMsg = 'Il pesce è scappato!'; loseLine(4, false); }
+  else if (r.prog <= 0) { G.lostMsg = 'Il pesce è scappato!'; loseLine(4, false, 'reel'); }
 }
-function loseLine(a, byPedalo) {
+function loseLine(a, byPedalo, cause) {
   G.ansia += a; G.combo = 0; G.stats.lost++; sfx.lose(); vib(120);
-  setEvent({ pos: false, t: pickL(FORT.neg), a: 5, p: -40 });
+  const cz = byPedalo && G.ped ? G.ped.who : cause || 'reel'; G.stats.lastEnemy = byPedalo && G.ped ? PEOPLE[G.ped.who].n : G.stats.lastEnemy;
+  setEvent({ pos: false, t: pickL(NEG[cz]), a: 5, p: -40 });
   floater(G.bx, SEA - 20, byPedalo ? (G.ped ? PEOPLE[G.ped.who].n : 'Martino') + ' ti ha tranciato la lenza!' : G.lostMsg, '#ff8a7a', 18);
   if (byPedalo && G.ped) G.ped.say = PEOPLE[G.ped.who].sorry;
   puff(G.bx, SEA, 10, '#dff6ff', 160, 0.6, 2.4); G.cut = 1; setPh('lost');
@@ -268,7 +275,7 @@ function catchItem() {
   const it = G.item, first = !save.dex[it.id];
   save.dex[it.id] = (save.dex[it.id] || 0) + 1;
   let pts = it.pts;
-  if (it.k === 'fish') { G.combo = Math.min(5, G.combo + 1); pts = it.pts * G.combo; G.stats.fish++; sfx[it.pts >= 180 ? 'big' : 'win'](); }
+  if (it.k === 'fish') { G.combo = Math.min(5, G.combo + 1); pts = it.pts * G.combo; G.stats.fish++; if (!G.stats.bestFish || it.pts > G.stats.bestFish.pts) G.stats.bestFish = it; sfx[it.pts >= 180 ? 'big' : 'win'](); }
   else if (it.k === 'pill') { G.stats.pills++; sfx.pill(); }
   else { G.combo = 0; G.stats.gag++; if (['martino', 'cartellino', 'cappello', 'lucone', 'tommyv', 'sciarpa', 'donati'].includes(it.id)) G.stats.martino++; sfx.gag(); }
   G.stats.bestCombo = Math.max(G.stats.bestCombo, G.combo);
@@ -284,10 +291,25 @@ function dismissCard() {
   if (!done) setEvent(rollFort());
   if (done) { G.mode = 'finale'; G.finT = 0; sfx.fanfare(); }
 }
+const PAINS = ['ginocchio sinistro', 'ginocchio destro (per par condicio)', 'spalla', 'l\'altra spalla', 'schiena', 'gomito del pescatore', 'alluce (sospetto)', 'collo (da Tommy V)', 'orgoglio', 'fegato (da spritz milanese)'];
+const DIAG = ['Ipocondria acuta (di origine marittima)', 'Sindrome da Donati', 'Allergia a Martino, Lucone e Tommy V', 'Ginocchio cronico, pesca acuta', 'Rapper con dolori da fermo'];
+const ADV = ['Riposo assoluto. Tranne a Sanremo, dove si pesca.', 'Evitare Martino, Lucone, Tommy V, Donati e Milano.', 'Una Tachipirina 1000 per ogni telefonata di Donati.', 'Niente calcetto per 6 mesi. Per il bene del calcio.', 'Sostituire i piedi (o i ferri da stiro).', 'Prima della prossima uscita: un certificato medico, un rogito e un\'altra spalla.'];
+const BEAST = { sardina: 'una balena', spigola: 'un marlin di 200 chili', scorfano: 'un mostro degli abissi', polpo: 'il Kraken', spada: 'un drago di mare', tonno: 'Moby Dick' };
+function makeReport() {
+  const st = G.stats, hrs = 3 + st.fish * 2 + st.lost, pains = [];
+  const pool = PAINS.slice(); while (pains.length < 3) pains.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  const beast = st.bestFish ? BEAST[st.bestFish.id] || 'uno squalo' : 'un branco di squali (poi li ho rimessi in mare)';
+  const who = st.lastEnemy || 'il ginocchio';
+  return {
+    pains: pains.join(', '), diag: DIAG[Math.floor(Math.random() * DIAG.length)], adv: ADV[Math.floor(Math.random() * ADV.length)],
+    story: '\u201cOggi ho combattuto ' + beast + ' per ' + hrs + ' ore, a mani nude, con il mare forza 9. Poi ' + who + ' ha rovinato tutto.\u201d',
+    truth: 'In realtà: ' + st.fish + (st.fish === 1 ? ' pesce' : ' pesci') + ', ' + st.lost + (st.lost === 1 ? ' scappato' : ' scappati') + '.',
+  };
+}
 function crisis() {
   G.mode = 'over'; G.overT = 0; G.shake = 14; G.flash = 0.6; holding = false;
   const newBest = G.score > save.best; if (newBest) save.best = G.score; persist();
-  G.over = { newBest }; sfx.crisis();
+  G.over = { newBest, ...makeReport() }; sfx.crisis();
 }
 
 function updateEvents(dt) {
@@ -307,12 +329,19 @@ function updateEvents(dt) {
     G.bubble = { t: P.hello, life: 2.4 };
   }
   if (G.ped) { G.ped.x -= 88 * dt; if (G.ped.x < -110) G.ped = null; }
+  G.nextCameo -= dt;
+  if (G.nextCameo <= 0 && !G.cameo) {
+    const who = PEOPLE_IDS[Math.floor(Math.random() * 4)], P = PEOPLE[who];
+    G.cameo = { who, life: 6.5, say: who === 'martino' ? 'DRIN! Timbrato. Ora si va a casa.' : who === 'lucone' ? 'Zzz... pausa caffè... Zzz...' : who === 'tommyv' ? P.lines[Math.floor(Math.random() * 2)] : 'Juventino! Ahahah! Forza Inter!' };
+    G.nextCameo = rnd(16, 26); G.ansia += who === 'lucone' ? 0 : 2; sfx.horn();
+  }
+  if (G.cameo) { G.cameo.life -= dt; if (G.cameo.life <= 0) G.cameo = null; }
   // borbottii
   if (G.bubble) { G.bubble.life -= dt; if (G.bubble.life <= 0) G.bubble = null; }
   G.mut -= dt;
   if (G.mut <= 0 && !G.bubble) {
-    const set = Math.random() < 0.55 ? MUTTER.sig : G.ansia < 35 ? MUTTER.lo : G.ansia < 70 ? MUTTER.mid : MUTTER.hi;
-    G.bubble = { t: set[Math.floor(Math.random() * set.length)], life: 2.6 }; G.mut = rnd(5, 8);
+    const r = Math.random(), set = r < 0.22 ? RAP : r < 0.6 ? MUTTER.sig : G.ansia < 35 ? MUTTER.lo : G.ansia < 70 ? MUTTER.mid : MUTTER.hi;
+    G.bubble = { t: set[Math.floor(Math.random() * set.length)], life: set === RAP ? 4.6 : 2.6 }; G.mut = rnd(5, 8);
   }
 }
 
@@ -320,7 +349,7 @@ function updatePlay(dt) {
   G.pt += dt;
   if (G.event) { G.event.life -= dt; if (G.event.life <= 0) G.event = null; }
   if (G.ph !== 'reveal') {
-    G.time += dt;
+    G.time += dt; { const pi = Math.floor((G.time % (PH_LEN * 3)) / PH_LEN); if (pi !== G.phaseIdx) { G.phaseIdx = pi; G.bubble = { t: PHASES[pi].msg, life: 4.2 }; floater(W / 2, 96, PHASES[pi].n, '#ffd24d', 30); } }
     G.ansia += (0.5 + Math.min(0.9, G.time / 240 * 0.9)) * dt;
     updateEvents(dt);
   }
@@ -335,7 +364,7 @@ function updatePlay(dt) {
     case 'wait': G.by = SEA + Math.sin(G.time * 3) * 1.5; if (G.pt >= G.wt) { setPh('bite'); sfx.bite(); vib(70); puff(G.bx, SEA, 8, '#dff6ff', 120, 0.5, 2); } break;
     case 'bite':
       G.by = SEA + 7 + Math.sin(G.time * 50) * 2;
-      if (G.pt > BITE_WIN) { G.lostMsg = 'Scappato! Eri distratto.'; loseLine(4, false); }
+      if (G.pt > BITE_WIN) { G.lostMsg = 'Scappato! Eri distratto.'; loseLine(4, false, 'late'); }
       break;
     case 'reel': updateReel(dt); G.by = SEA + 4; break;
     case 'retrieve': {
@@ -399,13 +428,28 @@ const BGF = []; for (let i = 0; i < 11; i++) BGF.push({ x: rnd(0, W), y: rnd(SEA
 const SNOW = []; for (let i = 0; i < 36; i++) SNOW.push({ x: rnd(0, W), y: rnd(0, SEA), s: rnd(1, 2.4), sp: rnd(14, 34), ph: rnd(0, 6) });
 const waveY = (x, t, a, f, s) => Math.sin(x * f + t * s) * a;
 
+const PHASES = [
+  { n: 'TRAMONTO', sky: ['#1b2455', '#6b3b80', '#ff8a5c', '#ffd48a'], night: 0, msg: 'Tramonto a Sanremo. Il ginocchio sente l\'umidità.' },
+  { n: 'NOTTE', sky: ['#050816', '#0e1738', '#1d2c5e', '#2d3f7a'], night: 1, msg: 'Si fa notte. Il polpo si sveglia, il ginocchio pure.' },
+  { n: 'MATTINA', sky: ['#4aa8ff', '#8cd0ff', '#c6ecff', '#fff3c9'], night: 0, msg: 'Mattina presto: Martino è già in ufficio, ha già timbrato.' },
+];
+const PH_LEN = 70;
+const hex2 = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const mixc = (a, b, k) => { const A = hex2(a), B = hex2(b); return 'rgb(' + A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(',') + ')'; };
+function phaseNow() {
+  const pos = (G.time % (PH_LEN * 3)) / PH_LEN, i = Math.floor(pos), f = pos - i, k = f > 0.82 ? ease((f - 0.82) / 0.18) : 0, A = PHASES[i], B = PHASES[(i + 1) % 3];
+  return { i, A, B, k, sky: A.sky.map((c, j) => mixc(c, B.sky[j], k)), night: A.night + (B.night - A.night) * k };
+}
+function dim() { const n = phaseNow().night; if (n > 0.01) { ctx.fillStyle = 'rgba(2,6,24,' + (0.42 * n).toFixed(2) + ')'; ctx.fillRect(0, SEA, W, H - SEA); } }
 function drawSky() {
   const t = G.t, g = ctx.createLinearGradient(0, 0, 0, SEA);
-  g.addColorStop(0, '#1b2455'); g.addColorStop(0.45, '#6b3b80'); g.addColorStop(0.8, '#ff8a5c'); g.addColorStop(1, '#ffd48a');
+  const ph = phaseNow(), nt = ph.night, dayK = ph.A.n === 'MATTINA' ? 1 - ph.k : ph.B.n === 'MATTINA' ? ph.k : 0;
+  g.addColorStop(0, ph.sky[0]); g.addColorStop(0.45, ph.sky[1]); g.addColorStop(0.8, ph.sky[2]); g.addColorStop(1, ph.sky[3]);
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, SEA + 2);
-  ctx.fillStyle = '#fff'; for (let i = 0; i < 40; i++) { ctx.globalAlpha = (0.25 + 0.5 * Math.abs(Math.sin(t * 1.3 + i))) * (1 - hash(i, 3) * 0.5); ctx.fillRect(hash(i, 1) * W, hash(i, 2) * SEA * 0.5, 2, 2); }
+  ctx.fillStyle = '#fff'; for (let i = 0; i < 40; i++) { ctx.globalAlpha = (0.25 + 0.5 * Math.abs(Math.sin(t * 1.3 + i))) * (1 - hash(i, 3) * 0.5) * (1 - dayK) * (0.4 + 0.6 * nt); ctx.fillRect(hash(i, 1) * W, hash(i, 2) * SEA * 0.5, 2, 2); }
   ctx.globalAlpha = 1;
-  glow(690, SEA - 14, 200, '#fff0b8', 0.55); ctx.fillStyle = '#fff6cf'; ctx.beginPath(); ctx.arc(690, SEA - 14, 52, Math.PI, TAU); ctx.fill();
+  if (nt > 0.5) { glow(690, 110, 120, '#cfe0ff', 0.5 * nt); ctx.fillStyle = '#f4f6ff'; ctx.beginPath(); ctx.arc(690, 110, 30, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(10,20,60,0.35)'; ctx.beginPath(); ctx.arc(701, 106, 26, 0, TAU); ctx.fill(); }
+  else { const sy = SEA - 14 - dayK * 120; glow(690, sy, 200, '#fff0b8', 0.55); ctx.fillStyle = '#fff6cf'; ctx.beginPath(); ctx.arc(690, sy, 52, Math.PI, TAU); ctx.fill(); if (dayK > 0.05) { ctx.beginPath(); ctx.arc(690, sy, 52, 0, Math.PI); ctx.fill(); } }
   // nuvole
   for (let i = 0; i < 4; i++) {
     const x = ((i * 290 + t * (7 + i * 2)) % (W + 300)) - 150, y = 70 + i * 36;
@@ -596,6 +640,44 @@ function drawLeo(x, y, big) {
   ctx.restore();
   return rp;
 }
+function drawPerson(w) {
+  const body = { martino: '#a9c7ee', lucone: '#3f8a5a', tommyv: '#17171c', donati: '#0a1a3c' }[w], big = w === 'lucone' ? 1.25 : 1;
+  ctx.save(); ctx.scale(big, big);
+  ctx.fillStyle = body; rr(ctx, -10, -36, 22, 24, 4); ctx.fill();
+  if (w === 'donati') { ctx.fillStyle = '#2a7fd1'; for (let i = 0; i < 3; i++) ctx.fillRect(-7 + i * 7, -36, 3.5, 24); }
+  ctx.fillStyle = w === 'tommyv' ? '#e0b08e' : '#e8b894'; ctx.beginPath(); ctx.arc(0, -44, 10, 0, TAU); ctx.fill();
+  if (w === 'martino') { ctx.fillStyle = '#8a5a34'; ctx.beginPath(); ctx.moveTo(-11, -42); ctx.quadraticCurveTo(-13, -58, 1, -57); ctx.quadraticCurveTo(13, -57, 11, -43); ctx.quadraticCurveTo(8, -50, 2, -50); ctx.quadraticCurveTo(-5, -49, -11, -42); ctx.fill(); ctx.fillStyle = 'rgba(80,55,38,0.6)'; ctx.beginPath(); ctx.ellipse(0, -37, 5.5, 3.2, 0, 0, TAU); ctx.fill(); }
+  if (w === 'lucone') { ctx.fillStyle = '#2a1a12'; ctx.beginPath(); ctx.arc(0, -47, 10, Math.PI, TAU); ctx.fill(); ctx.fillRect(-10, -48, 20, 3); }
+  if (w === 'tommyv') { ctx.fillStyle = '#1a1a1f'; ctx.beginPath(); ctx.arc(0, -46, 10.5, Math.PI * 1.02, TAU * 0.995); ctx.fill(); ctx.fillStyle = '#000'; ctx.fillRect(-9, -46, 8, 4.5); ctx.fillRect(1, -46, 8, 4.5); ctx.fillRect(-2, -45, 3, 1.4); }
+  if (w === 'donati') { ctx.fillStyle = '#3a2418'; ctx.beginPath(); ctx.arc(0, -47, 10, Math.PI, TAU); ctx.fill(); }
+  if (w !== 'tommyv') { ctx.fillStyle = '#111'; ctx.fillRect(-4, -45, 2, 2); ctx.fillRect(3, -45, 2, 2); }
+  ctx.fillStyle = '#7a1f1f'; ctx.fillRect(-3, -39, 7, 1.6);
+  if (w === 'martino' || w === 'lucone') { ctx.strokeStyle = '#2d6cdf'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-4, -36); ctx.lineTo(-1, -22); ctx.moveTo(4, -36); ctx.lineTo(1, -22); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.fillRect(-4, -23, 8, 7); ctx.fillStyle = '#c4382f'; ctx.fillRect(-4, -23, 8, 2); }
+  if (w === 'martino') { ctx.strokeStyle = '#1a1a1f'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(-8, -36); ctx.lineTo(7, -17); ctx.stroke(); ctx.fillStyle = '#d8d0c0'; rr(ctx, 1, -22, 12, 7, 3); ctx.fill(); }
+  if (w === 'tommyv') { ctx.strokeStyle = '#f2c230'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(0, -35, 6, 0.2, Math.PI - 0.2); ctx.stroke(); }
+  ctx.restore();
+}
+function drawCameo(c) {
+  const w = c.who, bx = 842, by = SEA - 3, a = cl(Math.min(c.life, 6.5 - c.life) / 0.4, 0, 1);
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.fillStyle = '#6b4a2e'; ctx.fillRect(bx - 96, by, 190, 6); ctx.fillStyle = '#3d2a1a'; ctx.fillRect(bx - 90, by + 6, 5, 16); ctx.fillRect(bx + 80, by + 6, 5, 16);
+  ctx.translate(bx, by); ctx.scale(0.62, 0.62);
+  if (w === 'lucone') {
+    ctx.fillStyle = '#e24b4b'; rr(ctx, -70, -14, 140, 14, 5); ctx.fill(); ctx.save(); ctx.translate(30, -16); ctx.rotate(-Math.PI / 2); drawPerson('lucone'); ctx.restore();
+    txt('Zzz', 60, -70 - Math.sin(G.t * 2) * 4, 22, '#fff', 'center', 1, '#234');
+  } else if (w === 'martino') {
+    ctx.fillStyle = '#9aa7b3'; rr(ctx, 30, -78, 44, 56, 5); ctx.fill(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(52, -58, 12, 0, TAU); ctx.fill(); ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(52, -58); ctx.lineTo(52, -66); ctx.moveTo(52, -58); ctx.lineTo(58, -56); ctx.stroke();
+    txt('TIMBRA', 52, -34, 9, '#7a1f1f', 'center'); drawPerson('martino');
+  } else if (w === 'tommyv') {
+    drawPerson('tommyv'); ctx.strokeStyle = '#17171c'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(12, -30); ctx.lineTo(30, -58 + Math.sin(G.t * 8) * 4); ctx.stroke();
+  } else {
+    drawPerson('donati'); ctx.fillStyle = '#6a4a2e'; ctx.fillRect(34, -90, 3, 80);
+    ctx.fillStyle = '#0a1a3c'; ctx.fillRect(37, -90, 52, 32); ctx.fillStyle = '#2a7fd1'; for (let i = 0; i < 4; i++) ctx.fillRect(37 + i * 13 + 7, -90 + Math.sin(G.t * 6 + i) * 2, 6, 32);
+  }
+  ctx.restore();
+  ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = '#c4382f'; const nm = PEOPLE[w].n.toUpperCase(), tw = nm.length * 7 + 14; rr(ctx, bx - tw / 2, by - 78, tw, 15, 7); ctx.fill(); txt(nm, bx, by - 70, 10, '#fff', 'center'); ctx.restore();
+  bubble(bx - 20, by - 88, c.say, { size: 13 * uk(), w: 170 * uk(), alpha: a });
+}
 function drawPedalo(p) {
   const x = p.x, y = SEA + 7 + Math.sin(G.t * 2 + x * 0.02) * 2, w = p.who;
   ctx.save(); ctx.translate(x, y);
@@ -620,23 +702,8 @@ function drawPedalo(p) {
     ctx.fillStyle = '#0a1a3c'; ctx.fillRect(39, -88, 46, 30); ctx.fillStyle = '#2a7fd1'; for (let i = 0; i < 4; i++) ctx.fillRect(39 + i * 12 + 6, -88, 6, 30);
     txt('INTER', 62, -73, 9, '#fff', 'center', 1, '#0a1a3c');
   }
-  // persona
   const px = w === 'martino' ? 14 : w === 'lucone' ? 6 : w === 'tommyv' ? -4 : 0;
-  const body = { martino: '#a9c7ee', lucone: '#3f8a5a', tommyv: '#17171c', donati: '#0a1a3c' }[w], big = w === 'lucone' ? 1.25 : 1;
-  ctx.save(); ctx.translate(px, 0); ctx.scale(big, big);
-  ctx.fillStyle = body; rr(ctx, -10, -36, 22, 24, 4); ctx.fill();
-  if (w === 'donati') { ctx.fillStyle = '#2a7fd1'; for (let i = 0; i < 3; i++) ctx.fillRect(-7 + i * 7, -36, 3.5, 24); }
-  ctx.fillStyle = w === 'tommyv' ? '#e0b08e' : '#e8b894'; ctx.beginPath(); ctx.arc(0, -44, 10, 0, TAU); ctx.fill();
-  if (w === 'martino') { ctx.fillStyle = '#8a5a34'; ctx.beginPath(); ctx.moveTo(-11, -42); ctx.quadraticCurveTo(-13, -58, 1, -57); ctx.quadraticCurveTo(13, -57, 11, -43); ctx.quadraticCurveTo(8, -50, 2, -50); ctx.quadraticCurveTo(-5, -49, -11, -42); ctx.fill(); ctx.fillStyle = 'rgba(80,55,38,0.6)'; ctx.beginPath(); ctx.ellipse(0, -37, 5.5, 3.2, 0, 0, TAU); ctx.fill(); }
-  if (w === 'lucone') { ctx.fillStyle = '#2a1a12'; ctx.beginPath(); ctx.arc(0, -47, 10, Math.PI, TAU); ctx.fill(); ctx.fillRect(-10, -48, 20, 3); }
-  if (w === 'tommyv') { ctx.fillStyle = '#1a1a1f'; ctx.beginPath(); ctx.arc(0, -46, 10.5, Math.PI * 1.02, TAU * 0.995); ctx.fill(); ctx.fillStyle = '#000'; ctx.fillRect(-9, -46, 8, 4.5); ctx.fillRect(1, -46, 8, 4.5); ctx.fillRect(-2, -45, 3, 1.4); }
-  if (w === 'donati') { ctx.fillStyle = '#3a2418'; ctx.beginPath(); ctx.arc(0, -47, 10, Math.PI, TAU); ctx.fill(); }
-  if (w !== 'tommyv') { ctx.fillStyle = '#111'; ctx.fillRect(-4, -45, 2, 2); ctx.fillRect(3, -45, 2, 2); }
-  ctx.fillStyle = '#7a1f1f'; ctx.fillRect(-3, -39, 7, 1.6);
-  if (w === 'martino' || w === 'lucone') { ctx.strokeStyle = '#2d6cdf'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-4, -36); ctx.lineTo(-1, -22); ctx.moveTo(4, -36); ctx.lineTo(1, -22); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.fillRect(-4, -23, 8, 7); ctx.fillStyle = '#c4382f'; ctx.fillRect(-4, -23, 8, 2); }
-  if (w === 'martino') { ctx.strokeStyle = '#1a1a1f'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(-8, -36); ctx.lineTo(7, -17); ctx.stroke(); ctx.fillStyle = '#d8d0c0'; rr(ctx, 1, -22, 12, 7, 3); ctx.fill(); }
-  if (w === 'tommyv') { ctx.strokeStyle = '#f2c230'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(0, -35, 6, 0.2, Math.PI - 0.2); ctx.stroke(); }
-  ctx.restore();
+  ctx.save(); ctx.translate(px, 0); drawPerson(w); ctx.restore();
   { const nm = PEOPLE[w].n.toUpperCase(), tw = nm.length * 7.6 + 16; ctx.fillStyle = '#c4382f'; const ny = w === 'lucone' ? -92 : w === 'martino' ? -78 : -82; rr(ctx, px - tw / 2, ny, tw, 17, 8); ctx.fill(); txt(nm, px, ny + 9, 11, '#fff', 'center'); }
   ctx.restore();
   bubble(x + 8, y - 106, p.say, { size: 13 * uk(), w: 160 * uk() });
@@ -777,7 +844,7 @@ function button(b, label, main) {
 }
 const profRect = i => ({ x: W / 2 - 270, y: 92 + i * 56, w: 540, h: 48 });
 function drawTitle() {
-  drawSky(); drawSea(); drawPier();
+  drawSky(); drawSea(); dim(); drawPier();
   const rp = drawLeo(LX, LY); drawLineAndBobber(rp);
   { const g = ctx.createLinearGradient(0, 40, 0, 360); g.addColorStop(0, 'rgba(8,14,40,0)'); g.addColorStop(0.25, 'rgba(8,14,40,0.5)'); g.addColorStop(0.8, 'rgba(8,14,40,0.5)'); g.addColorStop(1, 'rgba(8,14,40,0)'); ctx.fillStyle = g; ctx.fillRect(0, 40, W, 320); }
   const b = Math.sin(G.t * 2) * 3;
@@ -811,35 +878,36 @@ function drawCard() {
   ctx.restore();
 }
 function drawOver() {
-  const k = ease(cl(G.overT / 0.5, 0, 1));
+  const k = ease(cl(G.overT / 0.5, 0, 1)), o = G.over || {};
   ctx.fillStyle = 'rgba(6,10,30,' + (0.78 * k).toFixed(2) + ')'; ctx.fillRect(0, 0, W, H);
-  ctx.save(); ctx.translate(W / 2, H / 2 - 36 + (1 - k) * 30); ctx.globalAlpha = k;
-  const bw = 560, bh = 400, x = -bw / 2, y = -bh / 2;
+  ctx.save(); ctx.translate(W / 2, H / 2 - 34 + (1 - k) * 30); ctx.globalAlpha = k;
+  const bw = 580, bh = 424, x = -bw / 2, y = -bh / 2;
   ctx.fillStyle = '#fbfbf6'; rr(ctx, x, y, bw, bh, 14); ctx.fill(); ctx.strokeStyle = '#2f7fbf'; ctx.lineWidth = 4; ctx.stroke();
-  ctx.fillStyle = '#c4382f'; rr(ctx, x, y, bw, 50, 14); ctx.fill(); ctx.fillRect(x, y + 30, bw, 20);
-  txt('CRISI IPOCONDRIACA!', 0, y + 26, 28, '#fff', 'center');
-  txt('REFERTO MEDICO — Pronto Soccorso del Molo', 0, y + 72, 14, '#7a8a9a', 'center');
+  ctx.fillStyle = '#c4382f'; rr(ctx, x, y, bw, 46, 14); ctx.fill(); ctx.fillRect(x, y + 28, bw, 18);
+  txt('CRISI IPOCONDRIACA!', 0, y + 24, 26, '#fff', 'center');
+  txt('REFERTO MEDICO — Pronto Soccorso del Molo', 0, y + 62, 13, '#7a8a9a', 'center');
   const s = G.stats, ln = [
     ['Paziente', 'Leopoldo, 32 anni, milanese'],
-    ['Diagnosi', 'Ipocondria acuta (di origine marittima)'],
-    ['Pesci pescati', String(s.fish)],
-    ['Oggetti assurdi', s.gag + '  (di cui nemici: ' + s.martino + ')'],
-    ['Farmaci trovati', String(s.pills)],
-    ['Combo migliore', 'x' + s.bestCombo],
-    ['Durata della giornata', mmss(G.time)],
-    ['Ginocchio', 'ancora dolorante'],
+    ['Diagnosi', o.diag || ''],
+    ['Dolori del giorno', o.pains || ''],
+    ['Pescato', s.fish + ' pesci · ' + s.gag + ' oggetti (nemici: ' + s.martino + ') · ' + s.pills + ' farmaci'],
+    ['Combo · durata', 'x' + s.bestCombo + ' · ' + mmss(G.time)],
   ];
-  ln.forEach((r, i) => { txt(r[0], x + 30, y + 104 + i * 25, 15, '#4a5a6a', 'left'); txt(r[1], x + bw - 30, y + 104 + i * 25, 15, '#1a2a3a', 'right'); });
-  ctx.strokeStyle = '#d8e2ea'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x + 24, y + 312); ctx.lineTo(x + bw - 24, y + 312); ctx.stroke();
-  txt('PUNTEGGIO  ' + G.score + (G.over && G.over.newBest ? '   ★ NUOVO RECORD ★' : ''), 0, y + 334, 22, '#2f7fbf', 'center');
-  txt('Grado: ' + rankOf(G.score), 0, y + 362, 17, '#c4382f', 'center');
-  txt('Prognosi: sano come un pesce. Ma non ci crede.', 0, y + 384, 13, '#7a8a9a', 'center');
+  ln.forEach((r, i) => { txt(r[0], x + 26, y + 88 + i * 23, 14, '#4a5a6a', 'left'); txt(r[1], x + bw - 26, y + 88 + i * 23, 14, '#1a2a3a', 'right'); });
+  ctx.strokeStyle = '#d8e2ea'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x + 24, y + 208); ctx.lineTo(x + bw - 24, y + 208); ctx.stroke();
+  txt('LA VERSIONE DI LEOPOLDO', x + 26, y + 224, 11, '#c4382f', 'left');
+  wrap(o.story || '', bw - 52, 15).slice(0, 3).forEach((l, i) => txt(l, x + 26, y + 246 + i * 19, 15, '#2a1d10', 'left'));
+  txt(o.truth || '', x + 26, y + 308, 13, '#7a8a9a', 'left');
+  ctx.beginPath(); ctx.moveTo(x + 24, y + 326); ctx.lineTo(x + bw - 24, y + 326); ctx.stroke();
+  txt('PUNTEGGIO  ' + G.score + (o.newBest ? '   ★ NUOVO RECORD ★' : ''), 0, y + 346, 21, '#2f7fbf', 'center');
+  txt('Grado: ' + rankOf(G.score), 0, y + 372, 16, '#c4382f', 'center');
+  wrap('Consiglio: ' + (o.adv || ''), bw - 52, 12).slice(0, 2).forEach((l, i) => txt(l, 0, y + 394 + i * 14, 12, '#7a8a9a', 'center'));
   ctx.restore();
   if (G.overT > 0.9) { button(BTN.over[0], 'RIPROVA', true); button(BTN.over[1], 'PESCADEX'); }
 }
 function dexRect(i) { const col = i % 7, row = Math.floor(i / 7); return { x: 22 + col * 132, y: 70 + row * 82, w: 124, h: 74 }; }
 function drawProfiles() {
-  drawSky(); drawSea(); ctx.fillStyle = 'rgba(8,14,40,0.82)'; ctx.fillRect(0, 0, W, H);
+  drawSky(); drawSea(); dim(); ctx.fillStyle = 'rgba(8,14,40,0.82)'; ctx.fillRect(0, 0, W, H);
   txt('CHI GIOCA?', W / 2, 52, 40, '#ffd24d', 'center', 1, '#4a1a0a');
   profiles.names.slice(0, 6).forEach((n, i) => {
     const r = profRect(i), sv = readSave(n), cur = n === profiles.current;
@@ -887,7 +955,7 @@ function render() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.setTransform(dpr * scale, 0, 0, dpr * scale, offX * dpr, offY * dpr);
   { const x0 = -offX / scale - 4, x1 = (canvas.width / dpr - offX) / scale + 4, y0 = -offY / scale - 4, y1 = (canvas.height / dpr - offY) / scale + 4;
-    const gs = ctx.createLinearGradient(0, y0, 0, SEA); gs.addColorStop(0, '#1b2455'); gs.addColorStop(0.6, '#6b3b80'); gs.addColorStop(1, '#ffb27a'); ctx.fillStyle = gs; ctx.fillRect(x0, y0, x1 - x0, SEA - y0 + 1);
+    const gs = ctx.createLinearGradient(0, y0, 0, SEA); { const pn = phaseNow(); gs.addColorStop(0, pn.sky[0]); gs.addColorStop(0.6, pn.sky[1]); gs.addColorStop(1, pn.sky[2]); } ctx.fillStyle = gs; ctx.fillRect(x0, y0, x1 - x0, SEA - y0 + 1);
     const gw = ctx.createLinearGradient(0, SEA, 0, H); gw.addColorStop(0, '#46c0cf'); gw.addColorStop(0.3, '#1f84ab'); gw.addColorStop(1, '#09264f'); ctx.fillStyle = gw; ctx.fillRect(x0, SEA, x1 - x0, y1 - SEA); }
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
   const m = G.mode;
@@ -896,7 +964,8 @@ function render() {
   else if (m === 'title') { drawTitle(); drawParts(); }
   else {
     if (G.shake > 0) ctx.translate(rnd(-1, 1) * G.shake * 0.5, rnd(-1, 1) * G.shake * 0.5);
-    drawSky(); drawSea();
+    drawSky(); drawSea(); dim();
+    if (G.cameo) drawCameo(G.cameo);
     if (G.ped) drawPedalo(G.ped);
     drawPier(); const rp = drawLeo(LX, LY); drawLineAndBobber(rp); drawParts();
     if (G.bubble) { const a = cl(G.bubble.life / 0.4, 0, 1); bubble(LX + 6, LY - 150, G.bubble.t, { hot: G.bubble.hot, alpha: a, w: 170 * uk(), size: 14 * uk() }); }
