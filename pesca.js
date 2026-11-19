@@ -169,9 +169,9 @@ const RAP = ['Yo! Canna in mano, ginocchio che duole: pesco a Sanremo e il resto
   'Donati, zitto, la Juve è storia: trenta scudetti, tu solo memoria.', 'Dal Barrios a Sanremo, flow da campione: il ginocchio fa male, ma ho il rogito in salone.',
   'Tommy V mi scrive: ordine e disciplina. Io rispondo: Tachipirina.', 'Sono rapper, sono pescatore: il ginocchio è il mio cuore (e il mio dolore).'];
 const MUTTER = {
-  sig: ['Quanto cazzo sono forte!', 'Bro, devi andare dallo psicologo.', 'Quanto cazzo siete fragili!', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'Ieri ho preso un tonno da 300 chili. Giuro.', 'Mi fa male la spalla. E il ginocchio. E l\'altra spalla.', 'Si pesca solo a Sanremo. Il resto è acqua.', 'Sono di sinistra, ma il rogito è in centro.', 'Del Piero? Io facevo meglio.'],
+  sig: ['Quanto cazzo sono forte!', 'Bro, devi andare dallo psicologo.', 'Quanto cazzo siete fragili!', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'Ieri ho preso un tonno da 300 chili. Giuro.'],
   lo: ['Che bella giornata per pescare.', 'Il mare di Sanremo mi rilassa.', 'Oggi si sta bene.', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.', 'Quanto cazzo siete fragili!'],
-  mid: ['Mi sento strano...', 'Ho un neo sospetto.', 'Secondo me ho la febbre.', 'Mi gira un po\' la testa.', 'Bro, devi andare dallo psicologo.', 'Quanto cazzo siete fragili!', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.'],
+  mid: ['Secondo me ho la febbre.', 'Mi gira un po\' la testa.', 'Bro, devi andare dallo psicologo.', 'Quanto cazzo siete fragili!', '30 scudetti sul campo!', 'Stiamo FORMANDO l\'Italia.'],
   hi: ['Sto male. Sto MOLTO male.', 'Chiamate il 118!', 'Non respiro bene. (Respiro benissimo.)', 'È la fine. Dite a mamma.'],
 };
 const PEOPLE = {
@@ -181,8 +181,8 @@ const PEOPLE = {
     lines: ['Timbrato. Si va a casa.', 'Pausa caffè: tre ore.', 'Io e Martino reggiamo l\'Italia.', 'Leo, le tasse le paghi tu?'] },
   tommyv: { n: 'Tommy V', hello: 'Tommy V... aiuto.', sorry: 'Ai miei tempi si pescava meglio.',
     lines: ['Vincere e vinceremo!', 'Boia chi molla!', 'Qui ci vuole ordine, Leo!', 'Quando c\'era LVI si stava meglio!'] },
-  donati: { n: 'Donati', hello: '30 scudetti sul campo!', sorry: 'Juventino! Ahahah!',
-    lines: ['Juventino! Ahahah!', 'Inter campione, Leo!', 'Calciopoli, Leo. Calciopoli.', 'La Juve? Dai, dai...'] },
+  donati: { n: 'Donati', hello: 'Donati. Ovviamente.', sorry: 'Juventino! Ahahah!',
+    lines: ['Calciopoli, Leo. Calciopoli.'] },
 };
 const PEOPLE_IDS = ['martino', 'lucone', 'tommyv', 'donati'];
 const FORT = {
@@ -198,8 +198,8 @@ const NEG = {
   reel: ['Il ginocchio ha ceduto sul più bello.', 'Ti si è addormentato il braccio: sospetto infarto.', 'Niente calcetto il lunedì: il ginocchio ti fa male.', 'Il tuo piede-ferro-da-stiro sbaglia il rigore.', 'Weekend lungo a Milano: paghi lo spritz 15 euro.', 'Serata con la Gordons: spesi 150 euro per una cena pacco.', 'Matrimonio Gordons in Sudafrica: ti partono 1500 euro.'],
   martino: ['Martino timbra e va a casa: il caffè lo paghi tu.', 'Paghi più tasse per mantenere Lucone e Martino.', 'Martino ha tagliato la lenza ed è già fuori orario: non risponde.'],
   lucone: ['Lucone ti sorpassa in coda. Con il cartellino.', 'Lucone è in pausa caffè dal 2019. La tua lenza no.', 'Paghi più tasse per mantenere Lucone e Martino.'],
-  tommyv: ['Tommy V ti invita a cena a Milano.', 'Tommy V ti spiega l\'ordine: 40 minuti, senza pesce.', 'Orticaria da Tommy V: tre giorni di cortisone.'],
-  donati: ['La Juve ha perso anche questo weekend: sfottò a raffica di Donati.', 'Donati canta il coro dell\'Inter a Sanremo.', 'Donati ti ricorda il derby. Anche sott\'acqua.'],
+  tommyv: [],
+  donati: ['La Juve ha perso anche questo weekend: sfottò a raffica di Donati.', 'Donati canta il coro dell\'Inter a Sanremo.'],
 };
 const pickL = L => L[Math.floor(Math.random() * L.length)];
 function rollFort() { return { pos: true, t: pickL(FORT.pos), a: -4, p: 60 }; }
@@ -266,7 +266,7 @@ function updateReel(dt) {
 function loseLine(a, byPedalo, cause) {
   G.ansia += a; G.combo = 0; G.stats.lost++; sfx.lose(); vib(120);
   const cz = byPedalo && G.ped ? G.ped.who : cause || 'reel'; G.stats.lastEnemy = byPedalo && G.ped ? PEOPLE[G.ped.who].n : G.stats.lastEnemy;
-  setEvent({ pos: false, t: pickL(NEG[cz]), a: 5, p: -40 });
+  setEvent({ pos: false, t: pickL(NEG[cz].length ? NEG[cz] : NEG.reel), a: 5, p: -40 });
   floater(G.bx, SEA - 20, byPedalo ? (G.ped ? PEOPLE[G.ped.who].n : 'Martino') + ' ti ha tranciato la lenza!' : G.lostMsg, '#ff8a7a', 18);
   if (byPedalo && G.ped) G.ped.say = PEOPLE[G.ped.who].sorry;
   puff(G.bx, SEA, 10, '#dff6ff', 160, 0.6, 2.4); G.cut = 1; setPh('lost');
