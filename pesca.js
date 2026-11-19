@@ -189,7 +189,7 @@ const FORT = {
   pos: [
     'Il PD ha superato Fratelli d\'Italia!', 'È agosto: vai al mare a Sanremo!', 'Donati ha perso il derby. Bro.',
     'Oggi il ginocchio non fa male!', 'Tommy V è bloccato in tangenziale.', '30 scudetti sul campo!',
-    'Nesh ti lascia il suo gatto Gordo: lo devi nutrire per il weekend.', 'Martino ha chiesto scusa. (Sta sognando.)', 'Il medico dice: sei sanissimo!', 'Biden rivince le elezioni USA: la democrazia è salva!', 'Suoni al Barrios e i tuoi amici non inventano palle per balzarti.', 'Stiamo FORMANDO l\'Italia!',
+    'Nesh ti lascia il suo gatto Gordo: lo devi nutrire per il weekend.', 'Martino ha chiesto scusa. (Sta sognando.)', 'Il medico dice: sei sanissimo!', 'Biden rivince le elezioni USA: la democrazia è salva!', 'Suoni al Barrios e i tuoi amici non inventano palle per balzarti.', 'Stiamo FORMANDO l\'Italia!', 'La Bibbia: ti penti di tutte le bestemmie e ti avvicini a Gesù. Martino piange di gioia.',
   ],
   neg: [],
 };
