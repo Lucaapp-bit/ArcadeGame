@@ -180,9 +180,9 @@ const PEOPLE = {
   lucone: { n: 'Lucone', hello: 'Lucone. Lui e Martino fanno un ufficio.', sorry: 'Pausa caffè, Leo. Torno lunedì.',
     lines: ['Timbrato. Si va a casa.', 'Pausa caffè: tre ore.', 'Io e Martino reggiamo l\'Italia.', 'Leo, le tasse le paghi tu?'] },
   tommyv: { n: 'Tommy V', hello: 'Tommy V... aiuto.', sorry: 'Ai miei tempi si pescava meglio.',
-    lines: ['Vincere e vinceremo!', 'Boia chi molla!', 'Qui ci vuole ordine, Leo!', 'Quando c\'era LVI si stava meglio!'] },
+    lines: ['Vincere e vinceremo!', 'Boia chi molla!', 'Qui ci vuole ordine, Leo!', 'Quando c\'era LVI si stava meglio!', 'Vannacci salverà l\'Italia: fuori i comunisti dal mio paese!'] },
   donati: { n: 'Donati', hello: 'Donati. Ovviamente.', sorry: 'Juventino! Ahahah!',
-    lines: ['Calciopoli, Leo. Calciopoli.'] },
+    lines: ['Calciopoli, Leo. Calciopoli.', 'Zio, sono più bello di te!', 'Leo, hai montato i piedi al contrario: prova col golf!'] },
 };
 const PEOPLE_IDS = ['martino', 'lucone', 'tommyv', 'donati'];
 const FORT = {
